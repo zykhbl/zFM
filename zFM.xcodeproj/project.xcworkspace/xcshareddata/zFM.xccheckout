@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>319EF312-E1D5-4F99-B58B-12EA5FAD6640</string>
+	<key>IDESourceControlProjectName</key>
+	<string>zFM</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>C9C301C9-584B-4A59-A3C2-B8C4BE7FCF66</key>
+		<string>https://github.com/zykhbl/zFM.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>zFM.xcodeproj/project.xcworkspace</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>2801AE0D-C5CC-4927-8BB2-AA7AF2E8C30E</key>
+		<string>../../zFM</string>
+		<key>C9C301C9-584B-4A59-A3C2-B8C4BE7FCF66</key>
+		<string>../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>https://github.com/zykhbl/zFM.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>110</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>C9C301C9-584B-4A59-A3C2-B8C4BE7FCF66</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>C9C301C9-584B-4A59-A3C2-B8C4BE7FCF66</string>
+			<key>IDESourceControlWCCName</key>
+			<string>zFM</string>
+		</dict>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>2801AE0D-C5CC-4927-8BB2-AA7AF2E8C30E</string>
+			<key>IDESourceControlWCCName</key>
+			<string>zFM</string>
+		</dict>
+	</array>
+</dict>
+</plist>

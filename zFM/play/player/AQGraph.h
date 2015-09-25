@@ -64,7 +64,7 @@ typedef struct {
 - (void)enableInput:(UInt32)inputNum isOn:(AudioUnitParameterValue)isONValue;
 - (void)setInputVolume:(UInt32)inputNum value:(AudioUnitParameterValue)value;
 - (void)setOutputVolume:(AudioUnitParameterValue)value;
-- (void)selectEQPreset:(NSInteger)value;
+- (void)selectIpodEQPreset:(NSInteger)index;
 - (void)changeTag:(int)tag value:(CGFloat)v;
 - (void)changeBaseFrequency:(CGFloat)v;
 

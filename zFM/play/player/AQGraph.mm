@@ -183,7 +183,7 @@ static OSStatus renderNotification(void *inRefCon, AudioUnitRenderActionFlags *i
     if (result) { printf("AudioUnitSetParameter kMultiChannelMixerParam_Volume Output result %ld %08X %4.4s\n", result, (unsigned int)result, (char*)&result); return; }
 }
 
-- (void)selectEQPreset:(NSInteger)value {
+- (void)selectIpodEQPreset:(NSInteger)index {
     if (isCustom) {
         isCustom = NO;
         for (NSUInteger i=0; i<noBands; i++) {
@@ -193,11 +193,11 @@ static OSStatus renderNotification(void *inRefCon, AudioUnitRenderActionFlags *i
     }
     
     isIPodDefined = YES;
-    AUPreset *aPreset = (AUPreset*)CFArrayGetValueAtIndex(mEQPresetsArray, value);
+    AUPreset *aPreset = (AUPreset*)CFArrayGetValueAtIndex(mEQPresetsArray, index);
     OSStatus result = AudioUnitSetProperty(iPodEQ, kAudioUnitProperty_PresentPreset, kAudioUnitScope_Global, 0, aPreset, sizeof(AUPreset));
     if (result) { printf("AudioUnitSetProperty result %ld %08X %4.4s\n", result, (unsigned int)result, (char*)&result); return; };
     
-    printf("SET EQ PRESET %d ", value);
+    printf("SET EQ PRESET %d ", index);
     CFShow(aPreset->presetName);
 }
 

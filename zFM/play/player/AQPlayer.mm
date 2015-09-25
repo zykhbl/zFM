@@ -1,6 +1,4 @@
 //
-//  AQPlayer.m
-//
 //  AQPlayer.h
 //  zFM
 //
@@ -24,6 +22,15 @@
     [session setCategory:AVAudioSessionCategoryPlayback error:nil];
 }
 
++ (AQPlayer*)sharedAQPlayer {
+    static dispatch_once_t pred = 0;
+    __strong static id _sharedObject = nil;
+    dispatch_once(&pred, ^{
+        _sharedObject = [[self alloc] init];
+    });
+    return _sharedObject;
+}
+
 - (void)convert {
     if (self.converter == nil) {
         self.converter = [[AQConverter alloc] init];
@@ -43,11 +50,18 @@
 //        return [[NSURL alloc] initFileURLWithPath:self.downloadFilePath];
 //    } completionHandler:^(NSURLResponse *response, NSURL *filePath, NSError *error) {
 //        NSLog(@"File downloaded to: %@", filePath);
-//        [self performSelectorOnMainThread:@selector(convert) withObject:nil waitUntilDone:NO];
+//        [self performSelectorInBackground:@selector(convert) withObject:nil];
 //    }];
 //    [downloadTask resume];
+    
     self.downloadFilePath = [MyTool makeTmpFilePath:@"T1MHxLBCYT1R47IVrK.mp3"];
-    [self performSelectorOnMainThread:@selector(convert) withObject:nil waitUntilDone:NO];
+    [self performSelectorInBackground:@selector(convert) withObject:nil];
+}
+
+- (void)selectIpodEQPreset:(NSInteger)index {
+    if (self.converter != nil) {
+        [self.converter selectIpodEQPreset:index];
+    }    
 }
 
 @end

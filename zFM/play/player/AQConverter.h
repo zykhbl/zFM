@@ -12,4 +12,6 @@
 
 - (OSStatus)doConvertFile:(NSString*)url;
 
+- (void)selectIpodEQPreset:(NSInteger)index;
+
 @end

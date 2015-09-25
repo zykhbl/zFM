@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>selected</key>
+	<integer>8</integer>
+	<key>ipodEQS</key>
+	<array>
+		<string>沉闷</string>
+		<string>人声增强</string>
+		<string>低音增强</string>
+		<string>低音减弱</string>
+		<string>古典音乐</string>
+		<string>舞曲</string>
+		<string>低沉</string>
+		<string>电子乐</string>
+		<string>原声</string>
+		<string>嘻哈音乐</string>
+		<string>爵士乐</string>
+		<string>拉丁音乐</string>
+		<string>高音</string>
+		<string>休闲音乐</string>
+		<string>钢琴曲</string>
+		<string>流行乐</string>
+		<string>R &amp; B</string>
+		<string>摇滚乐</string>
+		<string>小型扬声器</string>
+		<string>口语音乐</string>
+		<string>高音增强</string>
+		<string>高音减弱</string>
+		<string>深夜</string>
+	</array>
+</dict>
+</plist>

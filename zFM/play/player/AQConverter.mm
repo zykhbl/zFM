@@ -243,9 +243,9 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
     return error;
 }
 
-- (void)change:(int)v {
+- (void)selectIpodEQPreset:(NSInteger)index {
     if (self.graph != nil) {
-        [self.graph selectEQPreset:v];
+        [self.graph selectIpodEQPreset:index];
     }
 }
 

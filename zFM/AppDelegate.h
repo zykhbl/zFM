@@ -7,12 +7,12 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "AQPlayer.h"
+#import "AudioPlayViewController.h"
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate, NSURLConnectionDataDelegate>
 
 @property (strong, nonatomic) UIWindow *window;
-@property (strong, nonatomic) AQPlayer *player;
+@property (strong, nonatomic) AudioPlayViewController *mainVC;
 @property (nonatomic) UIBackgroundTaskIdentifier bgTask;
 
 @end

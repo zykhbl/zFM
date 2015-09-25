@@ -8,8 +8,14 @@
 
 /* Begin PBXBuildFile section */
 		B7064DD51BB44BF700ECD501 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B74449771BB253AC004B9498 /* AVFoundation.framework */; };
-		B744496E1BB24C90004B9498 /* Pause_b@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = B744496B1BB24C90004B9498 /* Pause_b@2x.png */; };
-		B744496F1BB24C90004B9498 /* play_b@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = B744496C1BB24C90004B9498 /* play_b@2x.png */; };
+		B70E4D351BB5984F0083F4C9 /* PulleyViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B70E4D341BB5984F0083F4C9 /* PulleyViewController.m */; };
+		B70E4D391BB59BEE0083F4C9 /* AudioPlayViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B70E4D381BB59BEE0083F4C9 /* AudioPlayViewController.m */; };
+		B70E4D3C1BB59E300083F4C9 /* PlayerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B70E4D3B1BB59E300083F4C9 /* PlayerViewController.m */; };
+		B70E4D3F1BB59E550083F4C9 /* IpodEQViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B70E4D3E1BB59E550083F4C9 /* IpodEQViewController.m */; };
+		B70E4D421BB59E690083F4C9 /* CustomEQViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B70E4D411BB59E690083F4C9 /* CustomEQViewController.m */; };
+		B70E4D461BB5A6CE0083F4C9 /* ipodEQ.plist in Resources */ = {isa = PBXBuildFile; fileRef = B70E4D451BB5A6CE0083F4C9 /* ipodEQ.plist */; };
+		B70E4D4D1BB5A9B10083F4C9 /* IpodEQViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = B70E4D4C1BB5A9B10083F4C9 /* IpodEQViewCell.m */; };
+		B70E4D4F1BB5B7860083F4C9 /* choosed@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = B70E4D4E1BB5B7860083F4C9 /* choosed@2x.png */; };
 		B74449751BB24D20004B9498 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B74449731BB24D20004B9498 /* AudioToolbox.framework */; };
 		B77F6D941BB5467F00FD555B /* MyTool.m in Sources */ = {isa = PBXBuildFile; fileRef = B77F6D931BB5467F00FD555B /* MyTool.m */; };
 		B780629F1BB548790099C52E /* AQConverter.mm in Sources */ = {isa = PBXBuildFile; fileRef = B78062981BB548790099C52E /* AQConverter.mm */; };
@@ -19,6 +25,8 @@
 		B78062AD1BB5489E0099C52E /* CAComponentDescription.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B78062A51BB5489E0099C52E /* CAComponentDescription.cpp */; };
 		B78062AE1BB5489E0099C52E /* CAStreamBasicDescription.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B78062A91BB5489E0099C52E /* CAStreamBasicDescription.cpp */; };
 		B78062AF1BB5489E0099C52E /* CAXException.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B78062AB1BB5489E0099C52E /* CAXException.cpp */; };
+		B78062B31BB54A420099C52E /* pause@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = B78062B11BB54A420099C52E /* pause@2x.png */; };
+		B78062B41BB54A420099C52E /* play@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = B78062B21BB54A420099C52E /* play@2x.png */; };
 		B79BDEBF1BB16167001083DA /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B79BDEBE1BB16167001083DA /* Foundation.framework */; };
 		B79BDEC11BB16167001083DA /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B79BDEC01BB16167001083DA /* CoreGraphics.framework */; };
 		B79BDEC31BB16167001083DA /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B79BDEC21BB16167001083DA /* UIKit.framework */; };
@@ -53,8 +61,20 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		B744496B1BB24C90004B9498 /* Pause_b@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Pause_b@2x.png"; sourceTree = "<group>"; };
-		B744496C1BB24C90004B9498 /* play_b@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "play_b@2x.png"; sourceTree = "<group>"; };
+		B70E4D331BB5984F0083F4C9 /* PulleyViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PulleyViewController.h; sourceTree = "<group>"; };
+		B70E4D341BB5984F0083F4C9 /* PulleyViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PulleyViewController.m; sourceTree = "<group>"; };
+		B70E4D371BB59BEE0083F4C9 /* AudioPlayViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioPlayViewController.h; sourceTree = "<group>"; };
+		B70E4D381BB59BEE0083F4C9 /* AudioPlayViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AudioPlayViewController.m; sourceTree = "<group>"; };
+		B70E4D3A1BB59E300083F4C9 /* PlayerViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlayerViewController.h; sourceTree = "<group>"; };
+		B70E4D3B1BB59E300083F4C9 /* PlayerViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PlayerViewController.m; sourceTree = "<group>"; };
+		B70E4D3D1BB59E550083F4C9 /* IpodEQViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IpodEQViewController.h; sourceTree = "<group>"; };
+		B70E4D3E1BB59E550083F4C9 /* IpodEQViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IpodEQViewController.m; sourceTree = "<group>"; };
+		B70E4D401BB59E690083F4C9 /* CustomEQViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomEQViewController.h; sourceTree = "<group>"; };
+		B70E4D411BB59E690083F4C9 /* CustomEQViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CustomEQViewController.m; sourceTree = "<group>"; };
+		B70E4D451BB5A6CE0083F4C9 /* ipodEQ.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = ipodEQ.plist; path = zFM/play/ipodEQ.plist; sourceTree = SOURCE_ROOT; };
+		B70E4D4B1BB5A9B10083F4C9 /* IpodEQViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IpodEQViewCell.h; sourceTree = "<group>"; };
+		B70E4D4C1BB5A9B10083F4C9 /* IpodEQViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IpodEQViewCell.m; sourceTree = "<group>"; };
+		B70E4D4E1BB5B7860083F4C9 /* choosed@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "choosed@2x.png"; sourceTree = "<group>"; };
 		B74449711BB24D0B004B9498 /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = System/Library/Frameworks/CoreAudio.framework; sourceTree = SDKROOT; };
 		B74449731BB24D20004B9498 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		B74449741BB24D20004B9498 /* AudioUnit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioUnit.framework; path = System/Library/Frameworks/AudioUnit.framework; sourceTree = SDKROOT; };
@@ -90,6 +110,8 @@
 		B78062AA1BB5489E0099C52E /* CAStreamBasicDescription.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CAStreamBasicDescription.h; sourceTree = "<group>"; };
 		B78062AB1BB5489E0099C52E /* CAXException.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CAXException.cpp; sourceTree = "<group>"; };
 		B78062AC1BB5489E0099C52E /* CAXException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CAXException.h; sourceTree = "<group>"; };
+		B78062B11BB54A420099C52E /* pause@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "pause@2x.png"; sourceTree = "<group>"; };
+		B78062B21BB54A420099C52E /* play@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "play@2x.png"; sourceTree = "<group>"; };
 		B79BDEBB1BB16167001083DA /* zFM.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = zFM.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B79BDEBE1BB16167001083DA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		B79BDEC01BB16167001083DA /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -153,11 +175,57 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		B70E4D311BB5984F0083F4C9 /* baseUI */ = {
+			isa = PBXGroup;
+			children = (
+				B70E4D321BB5984F0083F4C9 /* controllers */,
+			);
+			path = baseUI;
+			sourceTree = "<group>";
+		};
+		B70E4D321BB5984F0083F4C9 /* controllers */ = {
+			isa = PBXGroup;
+			children = (
+				B70E4D331BB5984F0083F4C9 /* PulleyViewController.h */,
+				B70E4D341BB5984F0083F4C9 /* PulleyViewController.m */,
+			);
+			path = controllers;
+			sourceTree = "<group>";
+		};
+		B70E4D361BB59BEE0083F4C9 /* controllers */ = {
+			isa = PBXGroup;
+			children = (
+				B70E4D371BB59BEE0083F4C9 /* AudioPlayViewController.h */,
+				B70E4D381BB59BEE0083F4C9 /* AudioPlayViewController.m */,
+				B70E4D3A1BB59E300083F4C9 /* PlayerViewController.h */,
+				B70E4D3B1BB59E300083F4C9 /* PlayerViewController.m */,
+				B70E4D3D1BB59E550083F4C9 /* IpodEQViewController.h */,
+				B70E4D3E1BB59E550083F4C9 /* IpodEQViewController.m */,
+				B70E4D401BB59E690083F4C9 /* CustomEQViewController.h */,
+				B70E4D411BB59E690083F4C9 /* CustomEQViewController.m */,
+			);
+			name = controllers;
+			path = zFM/play/controllers;
+			sourceTree = SOURCE_ROOT;
+		};
+		B70E4D4A1BB5A9B10083F4C9 /* views */ = {
+			isa = PBXGroup;
+			children = (
+				B70E4D4B1BB5A9B10083F4C9 /* IpodEQViewCell.h */,
+				B70E4D4C1BB5A9B10083F4C9 /* IpodEQViewCell.m */,
+			);
+			name = views;
+			path = zFM/play/views;
+			sourceTree = SOURCE_ROOT;
+		};
 		B744495A1BB24C7A004B9498 /* play */ = {
 			isa = PBXGroup;
 			children = (
+				B70E4D451BB5A6CE0083F4C9 /* ipodEQ.plist */,
 				B78062A31BB5489E0099C52E /* PublicUtility */,
 				B78062961BB548790099C52E /* player */,
+				B70E4D361BB59BEE0083F4C9 /* controllers */,
+				B70E4D4A1BB5A9B10083F4C9 /* views */,
 			);
 			name = play;
 			path = player;
@@ -166,8 +234,7 @@
 		B744496A1BB24C90004B9498 /* sources */ = {
 			isa = PBXGroup;
 			children = (
-				B744496B1BB24C90004B9498 /* Pause_b@2x.png */,
-				B744496C1BB24C90004B9498 /* play_b@2x.png */,
+				B78062B01BB54A420099C52E /* play */,
 			);
 			path = sources;
 			sourceTree = "<group>";
@@ -200,12 +267,12 @@
 		B78062961BB548790099C52E /* player */ = {
 			isa = PBXGroup;
 			children = (
+				B780629B1BB548790099C52E /* AQPlayer.h */,
+				B780629C1BB548790099C52E /* AQPlayer.mm */,
 				B78062971BB548790099C52E /* AQConverter.h */,
 				B78062981BB548790099C52E /* AQConverter.mm */,
 				B78062991BB548790099C52E /* AQGraph.h */,
 				B780629A1BB548790099C52E /* AQGraph.mm */,
-				B780629B1BB548790099C52E /* AQPlayer.h */,
-				B780629C1BB548790099C52E /* AQPlayer.mm */,
 				B780629D1BB548790099C52E /* AQRing.h */,
 				B780629E1BB548790099C52E /* AQRing.m */,
 			);
@@ -229,6 +296,16 @@
 			name = PublicUtility;
 			path = zFM/play/PublicUtility;
 			sourceTree = SOURCE_ROOT;
+		};
+		B78062B01BB54A420099C52E /* play */ = {
+			isa = PBXGroup;
+			children = (
+				B78062B11BB54A420099C52E /* pause@2x.png */,
+				B78062B21BB54A420099C52E /* play@2x.png */,
+				B70E4D4E1BB5B7860083F4C9 /* choosed@2x.png */,
+			);
+			path = play;
+			sourceTree = "<group>";
 		};
 		B79BDEB21BB16167001083DA = {
 			isa = PBXGroup;
@@ -277,6 +354,7 @@
 				B79BDECD1BB16167001083DA /* AppDelegate.h */,
 				B79BDECE1BB16167001083DA /* AppDelegate.m */,
 				B77F6D911BB5467F00FD555B /* tools */,
+				B70E4D311BB5984F0083F4C9 /* baseUI */,
 				B744495A1BB24C7A004B9498 /* play */,
 				B79BDED01BB16167001083DA /* Images.xcassets */,
 				B79BDEC51BB16167001083DA /* Supporting Files */,
@@ -422,9 +500,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B744496E1BB24C90004B9498 /* Pause_b@2x.png in Resources */,
-				B744496F1BB24C90004B9498 /* play_b@2x.png in Resources */,
 				B79BDEC91BB16167001083DA /* InfoPlist.strings in Resources */,
+				B78062B31BB54A420099C52E /* pause@2x.png in Resources */,
+				B70E4D4F1BB5B7860083F4C9 /* choosed@2x.png in Resources */,
+				B78062B41BB54A420099C52E /* play@2x.png in Resources */,
+				B70E4D461BB5A6CE0083F4C9 /* ipodEQ.plist in Resources */,
 				B79BDED11BB16167001083DA /* Images.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -451,15 +531,21 @@
 				B78062AD1BB5489E0099C52E /* CAComponentDescription.cpp in Sources */,
 				B79BDF031BB16309001083DA /* AFHTTPRequestOperation.m in Sources */,
 				B78062A21BB548790099C52E /* AQRing.m in Sources */,
+				B70E4D3F1BB59E550083F4C9 /* IpodEQViewController.m in Sources */,
 				B79BDF0B1BB16309001083DA /* AFURLSessionManager.m in Sources */,
 				B78062AF1BB5489E0099C52E /* CAXException.cpp in Sources */,
+				B70E4D3C1BB59E300083F4C9 /* PlayerViewController.m in Sources */,
 				B79BDF0A1BB16309001083DA /* AFURLResponseSerialization.m in Sources */,
 				B78062A01BB548790099C52E /* AQGraph.mm in Sources */,
+				B70E4D391BB59BEE0083F4C9 /* AudioPlayViewController.m in Sources */,
 				B78062A11BB548790099C52E /* AQPlayer.mm in Sources */,
 				B78062AE1BB5489E0099C52E /* CAStreamBasicDescription.cpp in Sources */,
 				B79BDECF1BB16167001083DA /* AppDelegate.m in Sources */,
 				B79BDF051BB16309001083DA /* AFHTTPSessionManager.m in Sources */,
+				B70E4D351BB5984F0083F4C9 /* PulleyViewController.m in Sources */,
+				B70E4D421BB59E690083F4C9 /* CustomEQViewController.m in Sources */,
 				B79BDF041BB16309001083DA /* AFHTTPRequestOperationManager.m in Sources */,
+				B70E4D4D1BB5A9B10083F4C9 /* IpodEQViewCell.m in Sources */,
 				B79BDF061BB16309001083DA /* AFNetworkReachabilityManager.m in Sources */,
 				B77F6D941BB5467F00FD555B /* MyTool.m in Sources */,
 				B79BDECB1BB16167001083DA /* main.m in Sources */,

@@ -16,6 +16,10 @@
 @property (strong, nonatomic) AQConverter *converter;
 
 + (void)playForeground;
++ (AQPlayer*)sharedAQPlayer;
+
 - (void)play:(NSString*)url;
+
+- (void)selectIpodEQPreset:(NSInteger)index;
 
 @end

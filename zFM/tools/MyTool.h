@@ -1,17 +1,16 @@
 //
-//  MyUnit.h
-//  WBHui
+//  MyTool.h
+//  zFM
 //
-//  Created by kenny on 12-3-19.
-//  Copyright (c) 2012年 __MyCompanyName__. All rights reserved.
+//  Created by zykhbl on 15-9-25.
+//  Copyright (c) 2015年 zykhbl. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 #import "AppDelegate.h"
 
-@interface MyUnit : NSObject
+@interface MyTool : NSObject
 
-//NSFileMangage
 + (NSString*)makeUserFilePath:(NSString*)filename;
 + (NSString*)makeTmpFilePath:(NSString*)filename;
 + (NSString*)makeAppFilePath:(NSString*)filename;

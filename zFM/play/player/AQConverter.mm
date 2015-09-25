@@ -103,7 +103,6 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
     AudioStreamPacketDescription *outputPacketDescriptions = NULL;
     
     OSStatus error = noErr;
-    
     try {
         CFURLRef sourceURL = CFURLCreateWithFileSystemPath(kCFAllocatorDefault, (CFStringRef)url, kCFURLPOSIXPathStyle, false);
         XThrowIfError(AudioFileOpenURL(sourceURL, kAudioFileReadPermission, 0, &sourceFileID), "AudioFileOpenURL failed");
@@ -150,10 +149,9 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
         
         if (self.graph == nil) {
             self.graph = [[AQGraph alloc] init];
+            
             [self.graph awakeFromNib];
-            
             [self.graph setasbd:dstFormat];
-            
             [self.graph initializeAUGraph];
             
             [self.graph enableInput:0 isOn:1.0];
@@ -254,18 +252,6 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
 - (void)changeTag:(int)tag value:(CGFloat)v {
     if (self.graph != nil) {
         [self.graph changeTag:tag value:v];
-    }
-}
-
-- (void)hightPassValue:(CGFloat)v {
-    if (self.graph != nil) {
-        [self.graph hightPassValue:v];
-    }
-}
-
-- (void)lowPassValue:(CGFloat)v {
-    if (self.graph != nil) {
-        [self.graph lowPassValue:v];
     }
 }
 

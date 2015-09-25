@@ -1,16 +1,15 @@
 //
-//  MyUnit.m
-//  WBHui
+//  MyTool.h
+//  zFM
 //
-//  Created by kenny on 12-3-19.
-//  Copyright (c) 2012年 __MyCompanyName__. All rights reserved.
+//  Created by zykhbl on 15-9-25.
+//  Copyright (c) 2015年 zykhbl. All rights reserved.
 //
 
-#import "MyUnit.h"
+#import "MyTool.h"
 
-@implementation MyUnit
+@implementation MyTool
 
-//NSFileMangage
 + (NSString*)makeUserFilePath:(NSString*)filename {
     NSString *documentsDirectory = [NSHomeDirectory() stringByAppendingPathComponent:@"Documents"];
     NSString *filePath = [documentsDirectory stringByAppendingPathComponent:filename];

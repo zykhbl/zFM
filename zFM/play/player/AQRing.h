@@ -1,9 +1,9 @@
 //
 //  AQRing.h
-//  BLFM
+//  zFM
 //
-//  Created by zykhbl on 14-2-2.
-//  Copyright (c) 2014年 zykhbl. All rights reserved.
+//  Created by zykhbl on 15-9-25.
+//  Copyright (c) 2015年 zykhbl. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>

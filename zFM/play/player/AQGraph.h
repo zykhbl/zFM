@@ -1,3 +1,11 @@
+//
+//  AQGraph.h
+//  zFM
+//
+//  Created by zykhbl on 15-9-25.
+//  Copyright (c) 2015年 zykhbl. All rights reserved.
+//
+
 #import <CoreFoundation/CoreFoundation.h>
 #import <AudioToolbox/AudioToolbox.h>
 #import <AudioUnit/AudioUnit.h>
@@ -24,15 +32,11 @@ typedef struct {
     AUNode mixerNode;
     AUNode eqNode;
     AUNode ipodEQNode;
-    AUNode hightPassFiliterNode;
-    AUNode lowPassFiliterNode;
     AUNode outputNode;
     
     AudioUnit mMixer;
     AudioUnit mEQ;
     AudioUnit iPodEQ;
-    AudioUnit hightPassFiliter;
-    AudioUnit lowPassFiliter;
     
     CAStreamBasicDescription mClientFormat;
     CAStreamBasicDescription mOutputFormat;
@@ -62,8 +66,6 @@ typedef struct {
 - (void)setOutputVolume:(AudioUnitParameterValue)value;
 - (void)selectEQPreset:(NSInteger)value;
 - (void)changeTag:(int)tag value:(CGFloat)v;
-- (void)hightPassValue:(CGFloat)v;
-- (void)lowPassValue:(CGFloat)v;
 - (void)changeBaseFrequency:(CGFloat)v;
 
 - (void)startAUGraph;

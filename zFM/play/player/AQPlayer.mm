@@ -1,15 +1,17 @@
 //
 //  AQPlayer.m
-//  BLFM
 //
-//  Created by zykhbl on 14-1-25.
-//  Copyright (c) 2014年 zykhbl. All rights reserved.
+//  AQPlayer.h
+//  zFM
+//
+//  Created by zykhbl on 15-9-25.
+//  Copyright (c) 2015年 zykhbl. All rights reserved.
 //
 
 #import "AQPlayer.h"
 #import <AVFoundation/AVFoundation.h>
 #import "AFNetworking.h"
-#import "MyUnit.h"
+#import "MyTool.h"
 
 @implementation AQPlayer
 
@@ -37,14 +39,14 @@
 //    NSURLRequest *request = [NSURLRequest requestWithURL:URL];
 //    
 //    NSURLSessionDownloadTask *downloadTask = [manager downloadTaskWithRequest:request progress:nil destination:^NSURL *(NSURL *targetPath, NSURLResponse *response) {
-//        self.downloadFilePath = [MyUnit makeTmpFilePath:[response suggestedFilename]];
+//        self.downloadFilePath = [MyTool makeTmpFilePath:[response suggestedFilename]];
 //        return [[NSURL alloc] initFileURLWithPath:self.downloadFilePath];
 //    } completionHandler:^(NSURLResponse *response, NSURL *filePath, NSError *error) {
 //        NSLog(@"File downloaded to: %@", filePath);
 //        [self performSelectorOnMainThread:@selector(convert) withObject:nil waitUntilDone:NO];
 //    }];
 //    [downloadTask resume];
-    self.downloadFilePath = [MyUnit makeTmpFilePath:@"T1MHxLBCYT1R47IVrK.mp3"];
+    self.downloadFilePath = [MyTool makeTmpFilePath:@"T1MHxLBCYT1R47IVrK.mp3"];
     [self performSelectorOnMainThread:@selector(convert) withObject:nil waitUntilDone:NO];
 }
 

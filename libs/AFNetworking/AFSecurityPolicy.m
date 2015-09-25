@@ -23,7 +23,8 @@
 
 #import <AssertMacros.h>
 
-#if !TARGET_OS_IOS && !TARGET_OS_WATCH
+//#if !TARGET_OS_IOS && !TARGET_OS_WATCH
+#if !defined(__IPHONE_OS_VERSION_MIN_REQUIRED)
 static NSData * AFSecKeyGetData(SecKeyRef key) {
     CFDataRef data = NULL;
 
@@ -41,7 +42,8 @@ _out:
 #endif
 
 static BOOL AFSecKeyIsEqualToKey(SecKeyRef key1, SecKeyRef key2) {
-#if TARGET_OS_IOS || TARGET_OS_WATCH
+//#if TARGET_OS_IOS || TARGET_OS_WATCH
+#if defined(__IPHONE_OS_VERSION_MIN_REQUIRED)
     return [(__bridge id)key1 isEqual:(__bridge id)key2];
 #else
     return [AFSecKeyGetData(key1) isEqual:AFSecKeyGetData(key2)];

@@ -39,8 +39,6 @@ typedef NS_ENUM(NSInteger, AFNetworkReachabilityStatus) {
     AFNetworkReachabilityStatusReachableViaWiFi = 2,
 };
 
-NS_ASSUME_NONNULL_BEGIN
-
 /**
  `AFNetworkReachabilityManager` monitors the reachability of domains, and addresses for both WWAN and WiFi network interfaces.
 
@@ -140,7 +138,7 @@ NS_ASSUME_NONNULL_BEGIN
 
  @param block A block object to be executed when the network availability of the `baseURL` host changes.. This block has no return value and takes a single argument which represents the various reachability states from the device to the `baseURL`.
  */
-- (void)setReachabilityStatusChangeBlock:(nullable void (^)(AFNetworkReachabilityStatus status))block;
+- (void)setReachabilityStatusChangeBlock:(void (^)(AFNetworkReachabilityStatus status))block;
 
 @end
 
@@ -203,5 +201,4 @@ extern NSString * const AFNetworkingReachabilityNotificationStatusItem;
  */
 extern NSString * AFStringFromNetworkReachabilityStatus(AFNetworkReachabilityStatus status);
 
-NS_ASSUME_NONNULL_END
 #endif

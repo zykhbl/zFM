@@ -1,49 +1,45 @@
 //
 //  AppDelegate.m
-//  zFM
+//  BLFM
 //
-//  Created by zykhbl on 15-9-22.
-//  Copyright (c) 2015年 zykhbl. All rights reserved.
+//  Created by zykhbl on 13-4-8.
+//  Copyright (c) 2013年 zykhbl. All rights reserved.
 //
 
 #import "AppDelegate.h"
 
 @implementation AppDelegate
 
-- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
-{
+@synthesize window;
+@synthesize player;
+@synthesize bgTask;
+
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+    [AQPlayer playForeground];
+    
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-    // Override point for customization after application launch.
+    
     self.window.backgroundColor = [UIColor whiteColor];
     [self.window makeKeyAndVisible];
+    
+//    NSString *urlString = @"http://qzone.haoduoge.com/music/DDB51PJIPJ7F6B2BF40E5FBEADCFAD2795E24.mp3";
+    NSString *urlString = @"http://mobileapi.5sing.kugou.com/song/transcoding?songid=12626585&songtype=fc&bitrate=128";
+//    NSString *urlString = @"http://mobileapi.5sing.kugou.com/song/transcoding?songid=12946453&songtype=fc&bitrate=128";
+//    NSString *urlString = @"http://mobileapi.5sing.kugou.com/song/transcoding?songid=2444839&songtype=yc&bitrate=128";
+//    NSString *urlString = @"http://mp3.9ku.com/file2/416/415802.mp3";
+    
+    self.player = [[AQPlayer alloc] init];
+    [self.player play:urlString];
+    
     return YES;
 }
 
-- (void)applicationWillResignActive:(UIApplication *)application
-{
-    // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
-    // Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
-}
+- (void)applicationDidEnterBackground:(UIApplication*)application {
+    bgTask = [application beginBackgroundTaskWithExpirationHandler:NULL];
 
-- (void)applicationDidEnterBackground:(UIApplication *)application
-{
-    // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later. 
-    // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
-}
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
 
-- (void)applicationWillEnterForeground:(UIApplication *)application
-{
-    // Called as part of the transition from the background to the inactive state; here you can undo many of the changes made on entering the background.
-}
-
-- (void)applicationDidBecomeActive:(UIApplication *)application
-{
-    // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
-}
-
-- (void)applicationWillTerminate:(UIApplication *)application
-{
-    // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
+    });
 }
 
 @end

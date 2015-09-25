@@ -89,8 +89,6 @@
  - Operation copies do not include `completionBlock`, as it often strongly captures a reference to `self`, which would otherwise have the unintuitive side-effect of pointing to the _original_ operation when copied.
  */
 
-NS_ASSUME_NONNULL_BEGIN
-
 @interface AFURLConnectionOperation : NSOperation <NSURLConnectionDelegate, NSURLConnectionDataDelegate, NSSecureCoding, NSCopying>
 
 ///-------------------------------
@@ -114,12 +112,12 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  The last response received by the operation's connection.
  */
-@property (readonly, nonatomic, strong, nullable) NSURLResponse *response;
+@property (readonly, nonatomic, strong) NSURLResponse *response;
 
 /**
  The error, if any, that occurred in the lifecycle of the request.
  */
-@property (readonly, nonatomic, strong, nullable) NSError *error;
+@property (readonly, nonatomic, strong) NSError *error;
 
 ///----------------------------
 /// @name Getting Response Data
@@ -128,12 +126,12 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  The data received during the request.
  */
-@property (readonly, nonatomic, strong, nullable) NSData *responseData;
+@property (readonly, nonatomic, strong) NSData *responseData;
 
 /**
  The string representation of the response data.
  */
-@property (readonly, nonatomic, copy, nullable) NSString *responseString;
+@property (readonly, nonatomic, copy) NSString *responseString;
 
 /**
  The string encoding of the response.
@@ -158,7 +156,7 @@ NS_ASSUME_NONNULL_BEGIN
 
  This will be overridden by any shared credentials that exist for the username or password of the request URL, if present.
  */
-@property (nonatomic, strong, nullable) NSURLCredential *credential;
+@property (nonatomic, strong) NSURLCredential *credential;
 
 ///-------------------------------
 /// @name Managing Security Policy
@@ -185,7 +183,7 @@ NS_ASSUME_NONNULL_BEGIN
 
  By default, data is accumulated into a buffer that is stored into `responseData` upon completion of the request, with the intermediary `outputStream` property set to `nil`. When `outputStream` is set, the data will not be accumulated into an internal buffer, and as a result, the `responseData` property of the completed request will be `nil`. The output stream will be scheduled in the network thread runloop upon being set.
  */
-@property (nonatomic, strong, nullable) NSOutputStream *outputStream;
+@property (nonatomic, strong) NSOutputStream *outputStream;
 
 ///---------------------------------
 /// @name Managing Callback Queues
@@ -195,18 +193,18 @@ NS_ASSUME_NONNULL_BEGIN
  The dispatch queue for `completionBlock`. If `NULL` (default), the main queue is used.
  */
 #if OS_OBJECT_HAVE_OBJC_SUPPORT
-@property (nonatomic, strong, nullable) dispatch_queue_t completionQueue;
+@property (nonatomic, strong) dispatch_queue_t completionQueue;
 #else
-@property (nonatomic, assign, nullable) dispatch_queue_t completionQueue;
+@property (nonatomic, assign) dispatch_queue_t completionQueue;
 #endif
 
 /**
  The dispatch group for `completionBlock`. If `NULL` (default), a private dispatch group is used.
  */
 #if OS_OBJECT_HAVE_OBJC_SUPPORT
-@property (nonatomic, strong, nullable) dispatch_group_t completionGroup;
+@property (nonatomic, strong) dispatch_group_t completionGroup;
 #else
-@property (nonatomic, assign, nullable) dispatch_group_t completionGroup;
+@property (nonatomic, assign) dispatch_group_t completionGroup;
 #endif
 
 ///---------------------------------------------
@@ -267,7 +265,7 @@ NS_ASSUME_NONNULL_BEGIN
  @param handler A handler to be called shortly before the application’s remaining background time reaches 0. The handler is wrapped in a block that cancels the operation, and cleans up and marks the end of execution, unlike the `handler` parameter in `UIApplication -beginBackgroundTaskWithExpirationHandler:`, which expects this to be done in the handler itself. The handler is called synchronously on the main thread, thus blocking the application’s suspension momentarily while the application is notified.
   */
 #if defined(__IPHONE_OS_VERSION_MIN_REQUIRED)
-- (void)setShouldExecuteAsBackgroundTaskWithExpirationHandler:(nullable void (^)(void))handler NS_EXTENSION_UNAVAILABLE_IOS("Not available in app extensions.");
+- (void)setShouldExecuteAsBackgroundTaskWithExpirationHandler:(void (^)(void))handler;
 #endif
 
 ///---------------------------------
@@ -279,14 +277,14 @@ NS_ASSUME_NONNULL_BEGIN
 
  @param block A block object to be called when an undetermined number of bytes have been uploaded to the server. This block has no return value and takes three arguments: the number of bytes written since the last time the upload progress block was called, the total bytes written, and the total bytes expected to be written during the request, as initially determined by the length of the HTTP body. This block may be called multiple times, and will execute on the main thread.
  */
-- (void)setUploadProgressBlock:(nullable void (^)(NSUInteger bytesWritten, long long totalBytesWritten, long long totalBytesExpectedToWrite))block;
+- (void)setUploadProgressBlock:(void (^)(NSUInteger bytesWritten, long long totalBytesWritten, long long totalBytesExpectedToWrite))block;
 
 /**
  Sets a callback to be called when an undetermined number of bytes have been downloaded from the server.
 
  @param block A block object to be called when an undetermined number of bytes have been downloaded from the server. This block has no return value and takes three arguments: the number of bytes read since the last time the download progress block was called, the total bytes read, and the total bytes expected to be read during the request, as initially determined by the expected content size of the `NSHTTPURLResponse` object. This block may be called multiple times, and will execute on the main thread.
  */
-- (void)setDownloadProgressBlock:(nullable void (^)(NSUInteger bytesRead, long long totalBytesRead, long long totalBytesExpectedToRead))block;
+- (void)setDownloadProgressBlock:(void (^)(NSUInteger bytesRead, long long totalBytesRead, long long totalBytesExpectedToRead))block;
 
 ///-------------------------------------------------
 /// @name Setting NSURLConnection Delegate Callbacks
@@ -299,14 +297,14 @@ NS_ASSUME_NONNULL_BEGIN
 
  If `allowsInvalidSSLCertificate` is set to YES, `connection:willSendRequestForAuthenticationChallenge:` will attempt to have the challenge sender use credentials with invalid SSL certificates.
  */
-- (void)setWillSendRequestForAuthenticationChallengeBlock:(nullable void (^)(NSURLConnection *connection, NSURLAuthenticationChallenge *challenge))block;
+- (void)setWillSendRequestForAuthenticationChallengeBlock:(void (^)(NSURLConnection *connection, NSURLAuthenticationChallenge *challenge))block;
 
 /**
  Sets a block to be executed when the server redirects the request from one URL to another URL, or when the request URL changed by the `NSURLProtocol` subclass handling the request in order to standardize its format, as handled by the `NSURLConnectionDataDelegate` method `connection:willSendRequest:redirectResponse:`.
 
  @param block A block object to be executed when the request URL was changed. The block returns an `NSURLRequest` object, the URL request to redirect, and takes three arguments: the URL connection object, the the proposed redirected request, and the URL response that caused the redirect.
  */
-- (void)setRedirectResponseBlock:(nullable NSURLRequest * (^)(NSURLConnection *connection, NSURLRequest *request, NSURLResponse *redirectResponse))block;
+- (void)setRedirectResponseBlock:(NSURLRequest * (^)(NSURLConnection *connection, NSURLRequest *request, NSURLResponse *redirectResponse))block;
 
 
 /**
@@ -314,16 +312,16 @@ NS_ASSUME_NONNULL_BEGIN
 
  @param block A block object to be executed to determine what response a connection will cache, if any. The block returns an `NSCachedURLResponse` object, the cached response to store in memory or `nil` to prevent the response from being cached, and takes two arguments: the URL connection object, and the cached response provided for the request.
  */
-- (void)setCacheResponseBlock:(nullable NSCachedURLResponse * (^)(NSURLConnection *connection, NSCachedURLResponse *cachedResponse))block;
+- (void)setCacheResponseBlock:(NSCachedURLResponse * (^)(NSURLConnection *connection, NSCachedURLResponse *cachedResponse))block;
 
 ///
 
 /**
 
  */
-+ (NSArray *)batchOfRequestOperations:(nullable NSArray *)operations
-                        progressBlock:(nullable void (^)(NSUInteger numberOfFinishedOperations, NSUInteger totalNumberOfOperations))progressBlock
-                      completionBlock:(nullable void (^)(NSArray *operations))completionBlock;
++ (NSArray *)batchOfRequestOperations:(NSArray *)operations
+                        progressBlock:(void (^)(NSUInteger numberOfFinishedOperations, NSUInteger totalNumberOfOperations))progressBlock
+                      completionBlock:(void (^)(NSArray *operations))completionBlock;
 
 @end
 
@@ -340,5 +338,3 @@ extern NSString * const AFNetworkingOperationDidStartNotification;
  Posted when an operation finishes.
  */
 extern NSString * const AFNetworkingOperationDidFinishNotification;
-
-NS_ASSUME_NONNULL_END

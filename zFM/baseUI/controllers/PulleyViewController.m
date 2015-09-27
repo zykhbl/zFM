@@ -72,15 +72,13 @@
 }
 
 - (void)addTabScrollView:(NSArray*)tabNameArray {
-    CGRect rect = CGRectMake(20.0, 24.0, self.view.bounds.size.width - 40.0, 40.0);
-    
-    self.tabScrollView = [[UIScrollView alloc] init];
+    CGRect rect = CGRectMake(20.0, 20.0, self.view.bounds.size.width - 40.0, 40.0);
+    self.tabScrollView = [[UIScrollView alloc] initWithFrame:rect];
     self.tabScrollView.backgroundColor = [UIColor clearColor];
     self.tabScrollView.bounces = NO;
     self.tabScrollView.scrollsToTop = NO;
     self.tabScrollView.showsHorizontalScrollIndicator = NO;
     self.tabScrollView.showsVerticalScrollIndicator = NO;
-    self.tabScrollView.frame = rect;
     self.tabScrollView.autoresizingMask = UIViewAutoresizingFlexibleWidth;
     [self.view addSubview:self.tabScrollView];
     
@@ -122,17 +120,15 @@
 }
 
 - (void)addMainScrollView:(NSArray*)subViewControllerArray {
-    self.mainScrollView = [[UIScrollView alloc] init];
+    CGRect rect = CGRectMake(0.0, 60.0, self.view.bounds.size.width, self.view.bounds.size.height - 60.0);
+    self.mainScrollView = [[UIScrollView alloc] initWithFrame:rect];
+    self.mainScrollView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     self.mainScrollView.pagingEnabled = YES;
     self.mainScrollView.bounces = NO;
     self.mainScrollView.scrollsToTop = NO;
     self.mainScrollView.showsHorizontalScrollIndicator = NO;
     self.mainScrollView.showsVerticalScrollIndicator = NO;
     self.mainScrollView.delegate = self;
-    
-    CGRect rect = CGRectMake(0.0, 84.0, self.view.bounds.size.width, self.view.bounds.size.height - 84.0);
-    self.mainScrollView.frame = rect;
-    self.mainScrollView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     [self.view addSubview:self.mainScrollView];
     
     if (self.mainViewControllerArray == nil) {

@@ -7,6 +7,7 @@
 //
 
 #import "AppDelegate.h"
+#import "AQPlayer.h"
 
 @implementation AppDelegate
 
@@ -15,8 +16,9 @@
 @synthesize bgTask;
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+    [AQPlayer playForeground];
     
+    self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];    
     self.window.backgroundColor = [UIColor whiteColor];
     [self.window makeKeyAndVisible];
     

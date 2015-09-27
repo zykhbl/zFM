@@ -7,11 +7,28 @@
 //
 
 #import <UIKit/UIKit.h>
+#include <pthread.h>
+
+@protocol AQConverterDelegate;
 
 @interface AQConverter : NSObject
 
-- (OSStatus)doConvertFile:(NSString*)url;
+@property (nonatomic, assign) id<AQConverterDelegate> delegate;
+
+- (void)doConvertFile:(NSString*)url;
+- (void)signal;
+- (void)signalOnEnd;
+
+- (void)play;
+- (void)pause;
+- (void)seek:(off_t)offset;
 
 - (void)selectIpodEQPreset:(NSInteger)index;
+
+@end
+
+@protocol AQConverterDelegate <NSObject>
+
+- (void)AQConverter:(AQConverter*)converter audioDataOffset:(UInt64)dataOffset bitRate:(UInt32)bRate;
 
 @end

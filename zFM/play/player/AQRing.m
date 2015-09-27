@@ -24,6 +24,8 @@
 }
 
 - (id)init {
+    self = [super init];
+    
     if (self) {
         capacity = kRingDefaultSize;
         writeOffset = readOffset = 0;

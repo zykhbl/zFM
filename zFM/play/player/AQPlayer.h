@@ -8,18 +8,35 @@
 
 #import <Foundation/Foundation.h>
 #import <AudioToolbox/AudioToolbox.h>
+#import "AQDownloader.h"
 #import "AQConverter.h"
 
-@interface AQPlayer : NSObject
+@protocol AQPlayerDelegate;
 
-@property (strong, nonatomic) NSString *downloadFilePath;
-@property (strong, nonatomic) AQConverter *converter;
+@interface AQPlayer : NSObject <AQDownloaderDelegate, AQConverterDelegate>
+
+@property (nonatomic, assign) id<AQPlayerDelegate> delegate;
+@property (nonatomic, strong) AQDownloader *downloader;
+@property (nonatomic, strong) AQConverter *converter;
+@property (nonatomic, assign) UInt64 audioDataOffset;
+@property (nonatomic, assign) UInt32 bitRate;
 
 + (void)playForeground;
 + (AQPlayer*)sharedAQPlayer;
 
 - (void)play:(NSString*)url;
 
+- (void)play;
+- (void)pause;
+- (void)seek:(off_t)offset;
+
 - (void)selectIpodEQPreset:(NSInteger)index;
+
+@end
+
+@protocol AQPlayerDelegate <NSObject>
+
+- (void)AQPlayer:(AQPlayer*)player duration:(NSTimeInterval)d;
+- (void)AQPlayer:(AQPlayer*)player playing:(BOOL)flag;
 
 @end

@@ -8,13 +8,14 @@
 
 #import "AQPlayer.h"
 #import <AVFoundation/AVFoundation.h>
-#import "AFNetworking.h"
-#import "MyTool.h"
 
 @implementation AQPlayer
 
-@synthesize downloadFilePath;
+@synthesize delegate;
+@synthesize downloader;
 @synthesize converter;
+@synthesize audioDataOffset;
+@synthesize bitRate;
 
 + (void)playForeground {
     AVAudioSession *session = [AVAudioSession sharedInstance];
@@ -31,37 +32,54 @@
     return _sharedObject;
 }
 
-- (void)convert {
-    if (self.converter == nil) {
-        self.converter = [[AQConverter alloc] init];
+- (void)play:(NSString*)url {
+    if (self.downloader == nil) {
+        self.downloader = [AQDownloader sharedAQDownloader];
+        self.downloader.delegate = self;
     }
-    [self.converter doConvertFile:self.downloadFilePath];
+    
+    [self.downloader download:url];
 }
 
-- (void)play:(NSString*)url {
-//    NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
-//    AFURLSessionManager *manager = [[AFURLSessionManager alloc] initWithSessionConfiguration:configuration];
-//    
-//    NSURL *URL = [NSURL URLWithString:url];
-//    NSURLRequest *request = [NSURLRequest requestWithURL:URL];
-//    
-//    NSURLSessionDownloadTask *downloadTask = [manager downloadTaskWithRequest:request progress:nil destination:^NSURL *(NSURL *targetPath, NSURLResponse *response) {
-//        self.downloadFilePath = [MyTool makeTmpFilePath:[response suggestedFilename]];
-//        return [[NSURL alloc] initFileURLWithPath:self.downloadFilePath];
-//    } completionHandler:^(NSURLResponse *response, NSURL *filePath, NSError *error) {
-//        NSLog(@"File downloaded to: %@", filePath);
-//        [self performSelectorInBackground:@selector(convert) withObject:nil];
-//    }];
-//    [downloadTask resume];
-    
-    self.downloadFilePath = [MyTool makeTmpFilePath:@"T1MHxLBCYT1R47IVrK.mp3"];
-    [self performSelectorInBackground:@selector(convert) withObject:nil];
+- (void)play {
+    [self.converter play];
+}
+
+- (void)pause {
+    [self.converter pause];
+}
+
+- (void)seek:(off_t)offset {
+    [self.converter seek:offset];
 }
 
 - (void)selectIpodEQPreset:(NSInteger)index {
     if (self.converter != nil) {
         [self.converter selectIpodEQPreset:index];
     }    
+}
+
+//===========protocol AQDownloaderDelegate===========
+- (void)AQDownloader:(AQDownloader*)downloader convert:(NSString*)filePath {
+    if (self.converter == nil) {
+        self.converter = [[AQConverter alloc] init];
+        self.converter.delegate = self;
+    }
+    [self.converter doConvertFile:filePath];
+}
+
+- (void)AQDownloader:(AQDownloader*)downloader signal:(BOOL)flag {
+    [self.converter signal];
+}
+
+//===========AQConverterDelegate===========
+- (void)AQConverter:(AQConverter*)converter audioDataOffset:(UInt64)dataOffset bitRate:(UInt32)bRate {
+    if (self.delegate && [self.delegate respondsToSelector:@selector(AQPlayer:duration:)]) {
+        self.audioDataOffset = dataOffset;
+        self.bitRate = bRate;
+        NSTimeInterval duration = (self.downloader.contentLength - self.audioDataOffset) * 8 / self.bitRate;
+        [self.delegate AQPlayer:self duration:duration];
+    }
 }
 
 @end

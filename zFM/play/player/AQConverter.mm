@@ -14,6 +14,9 @@
 
 #define kDefaultSize 1024 * 5
 
+static pthread_mutex_t mutex;
+static pthread_cond_t cond;
+
 enum {
     kMyAudioConverterErr_CannotResumeFromInterruptionError = 'CANT',
     eofErr = -39
@@ -39,8 +42,16 @@ static OSStatus encoderDataProc(AudioConverterRef inAudioConverter, UInt32 *ioNu
     }
     
 	UInt32 outNumBytes;
-	OSStatus error = AudioFileReadPackets(afio->srcFileID, false, &outNumBytes, afio->packetDescriptions, afio->srcFilePos, ioNumberDataPackets, afio->srcBuffer);
-	if (eofErr == error) {//todo
+    
+    pthread_mutex_lock(&mutex);
+    OSStatus error = AudioFileReadPackets(afio->srcFileID, false, &outNumBytes, afio->packetDescriptions, afio->srcFilePos, ioNumberDataPackets, afio->srcBuffer);
+    while (error && eofErr != error) {
+        pthread_cond_wait(&cond, &mutex);
+        error = AudioFileReadPackets(afio->srcFileID, false, &outNumBytes, afio->packetDescriptions, afio->srcFilePos, ioNumberDataPackets, afio->srcBuffer);
+    }
+    pthread_mutex_unlock(&mutex);
+    
+	if (eofErr == error) {
         error = noErr;
     }
 	if (error) { printf ("Input Proc Read error: %ld (%4.4s)\n", error, (char*)&error); return error; }
@@ -83,33 +94,72 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
 
 @interface AQConverter ()
 
-@property (nonatomic, retain) AQGraph *graph;
+@property (nonatomic, assign) AudioFileIOPtr afio;
+@property (nonatomic, strong) AQGraph *graph;
 
 @end
 
 @implementation AQConverter
 
+@synthesize delegate;
 @synthesize graph;
 
-- (OSStatus)doConvertFile:(NSString*)url {
+- (void)dealloc {
+    if (self.afio != NULL) {
+        free(self.afio);
+    }
+    pthread_mutex_destroy(&mutex);
+    pthread_cond_destroy(&cond);
+}
+
+- (id)init {
+    self = [super init];
+    
+    if (self) {
+        pthread_mutex_init(&mutex, NULL);
+        pthread_cond_init(&cond, NULL);
+    }
+    
+    return self;
+}
+
+- (void)doConvertFile:(NSString*)url {
 	AudioFileID         sourceFileID = 0;
     AudioConverterRef   converter = NULL;
     Boolean             canResumeFromInterruption = true;
     
     CAStreamBasicDescription srcFormat, dstFormat;
-    AudioFileIO afio = {};
+    self.afio = (AudioFileIOPtr)malloc(sizeof(AudioFileIO));
     
     char *outputBuffer = NULL;
     AudioStreamPacketDescription *outputPacketDescriptions = NULL;
     
-    OSStatus error = noErr;
     try {
         CFURLRef sourceURL = CFURLCreateWithFileSystemPath(kCFAllocatorDefault, (CFStringRef)url, kCFURLPOSIXPathStyle, false);
-        XThrowIfError(AudioFileOpenURL(sourceURL, kAudioFileReadPermission, 0, &sourceFileID), "AudioFileOpenURL failed");
+        
+        pthread_mutex_lock(&mutex);
+        OSStatus error = AudioFileOpenURL(sourceURL, kAudioFileReadPermission, 0, &sourceFileID);
+        while (error) {
+            pthread_cond_wait(&cond, &mutex);
+            error = AudioFileOpenURL(sourceURL, kAudioFileReadPermission, 0, &sourceFileID);
+        }
+        pthread_mutex_unlock(&mutex);
+        
         CFRelease(sourceURL);
         
         UInt32 size = sizeof(srcFormat);
         XThrowIfError(AudioFileGetProperty(sourceFileID, kAudioFilePropertyDataFormat, &size, &srcFormat), "couldn't get source data format");
+        
+        UInt64 audioDataOffset = 0;
+        size = sizeof(audioDataOffset);
+        XThrowIfError(AudioFileGetProperty(sourceFileID, kAudioFilePropertyDataOffset, &size, &audioDataOffset), "couldn't get kAudioFilePropertyDataOffset");
+        
+        UInt32 bitRate = 0;
+        size = sizeof(bitRate);
+        XThrowIfError(AudioFileGetProperty(sourceFileID, kAudioFilePropertyBitRate, &size, &bitRate), "couldn't get kAudioFilePropertyBitRate");
+        if (self.delegate && [self.delegate respondsToSelector:@selector(AQConverter:audioDataOffset:bitRate:)]) {
+            [self.delegate AQConverter:self audioDataOffset:audioDataOffset bitRate:bitRate];
+        }
         
         dstFormat.mSampleRate = srcFormat.mSampleRate;
         dstFormat.mFormatID = kAudioFormatLinearPCM;
@@ -163,23 +213,23 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
             [self.graph startAUGraph];
         }
         
-        afio.srcFileID = sourceFileID;
-        afio.srcBufferSize = kDefaultSize;
-        afio.srcBuffer = new char [afio.srcBufferSize];
-        afio.srcFilePos = 0;
-        afio.srcFormat = srcFormat;
+        self.afio->srcFileID = sourceFileID;
+        self.afio->srcBufferSize = kDefaultSize;
+        self.afio->srcBuffer = new char [self.afio->srcBufferSize];
+        self.afio->srcFilePos = 0;
+        self.afio->srcFormat = srcFormat;
 		
         if (srcFormat.mBytesPerPacket == 0) {
-            size = sizeof(afio.srcSizePerPacket);
-            XThrowIfError(AudioFileGetProperty(sourceFileID, kAudioFilePropertyPacketSizeUpperBound, &size, &afio.srcSizePerPacket), "AudioFileGetProperty kAudioFilePropertyPacketSizeUpperBound failed!");
+            size = sizeof(self.afio->srcSizePerPacket);
+            XThrowIfError(AudioFileGetProperty(sourceFileID, kAudioFilePropertyPacketSizeUpperBound, &size, &self.afio->srcSizePerPacket), "AudioFileGetProperty kAudioFilePropertyPacketSizeUpperBound failed!");
             
-            afio.numPacketsPerRead = afio.srcBufferSize / afio.srcSizePerPacket;
+            self.afio->numPacketsPerRead = self.afio->srcBufferSize / self.afio->srcSizePerPacket;
             
-            afio.packetDescriptions = new AudioStreamPacketDescription [afio.numPacketsPerRead];
+            self.afio->packetDescriptions = new AudioStreamPacketDescription [self.afio->numPacketsPerRead];
         } else {
-            afio.srcSizePerPacket = srcFormat.mBytesPerPacket;
-            afio.numPacketsPerRead = afio.srcBufferSize / afio.srcSizePerPacket;
-            afio.packetDescriptions = NULL;
+            self.afio->srcSizePerPacket = srcFormat.mBytesPerPacket;
+            self.afio->numPacketsPerRead = self.afio->srcBufferSize / self.afio->srcSizePerPacket;
+            self.afio->packetDescriptions = NULL;
         }
         
         UInt32 outputSizePerPacket = dstFormat.mBytesPerPacket;
@@ -208,7 +258,7 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
             }
 
             UInt32 ioOutputDataPackets = numOutputPackets;
-            error = AudioConverterFillComplexBuffer(converter, encoderDataProc, &afio, &ioOutputDataPackets, &fillBufList, outputPacketDescriptions);
+            error = AudioConverterFillComplexBuffer(converter, encoderDataProc, self.afio, &ioOutputDataPackets, &fillBufList, outputPacketDescriptions);
             if (error) {
                 if (kAudioConverterErr_HardwareInUse == error) {
                     printf("Audio Converter returned kAudioConverterErr_HardwareInUse!\n");
@@ -229,44 +279,48 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
     } catch (CAXException e) {
 		char buf[256];
 		fprintf(stderr, "Error: %s (%s)\n", e.mOperation, e.FormatError(buf));
-        error = e.mError;
 	}
     
     if (converter) AudioConverterDispose(converter);
 	if (sourceFileID) AudioFileClose(sourceFileID);
     
-    if (afio.srcBuffer) delete [] afio.srcBuffer;
-    if (afio.packetDescriptions) delete [] afio.packetDescriptions;
+    if (self.afio->srcBuffer) delete [] self.afio->srcBuffer;
+    if (self.afio->packetDescriptions) delete [] self.afio->packetDescriptions;
     if (outputBuffer) delete [] outputBuffer;
     if (outputPacketDescriptions) delete [] outputPacketDescriptions;
-    
-    return error;
+}
+
+- (void)signal {
+    pthread_mutex_lock(&mutex);
+    pthread_cond_signal(&cond);
+    pthread_mutex_unlock(&mutex);
+}
+
+- (void)signalOnEnd {
+    pthread_mutex_lock(&mutex);
+    pthread_cond_signal(&cond);
+    pthread_mutex_unlock(&mutex);
+}
+
+- (void)play {
+    [self.graph startAUGraph];
+}
+
+- (void)pause {
+    [self.graph stopAUGraph];
+}
+
+- (void)seek:(off_t)offset {
+    pthread_mutex_lock(&mutex);
+    UInt32 offsetPackets = (UInt32)(offset / self.afio->srcSizePerPacket) + 1;
+    self.afio->srcFilePos = offsetPackets;
+    pthread_mutex_unlock(&mutex);
 }
 
 - (void)selectIpodEQPreset:(NSInteger)index {
     if (self.graph != nil) {
         [self.graph selectIpodEQPreset:index];
     }
-}
-
-- (void)changeTag:(int)tag value:(CGFloat)v {
-    if (self.graph != nil) {
-        [self.graph changeTag:tag value:v];
-    }
-}
-
-- (void)changeBaseFrequency:(CGFloat)v {
-    if (self.graph != nil) {
-        [self.graph changeBaseFrequency:v];
-    }
-}
-
-- (void)start {
-    [self.graph startAUGraph];
-}
-
-- (void)pause {
-    [self.graph stopAUGraph];
 }
 
 @end

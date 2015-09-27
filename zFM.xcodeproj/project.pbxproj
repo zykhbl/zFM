@@ -16,6 +16,7 @@
 		B70E4D461BB5A6CE0083F4C9 /* ipodEQ.plist in Resources */ = {isa = PBXBuildFile; fileRef = B70E4D451BB5A6CE0083F4C9 /* ipodEQ.plist */; };
 		B70E4D4D1BB5A9B10083F4C9 /* IpodEQViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = B70E4D4C1BB5A9B10083F4C9 /* IpodEQViewCell.m */; };
 		B70E4D4F1BB5B7860083F4C9 /* choosed@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = B70E4D4E1BB5B7860083F4C9 /* choosed@2x.png */; };
+		B72562961BB7C238005AF532 /* AQDownloader.m in Sources */ = {isa = PBXBuildFile; fileRef = B72562951BB7C238005AF532 /* AQDownloader.m */; };
 		B74449751BB24D20004B9498 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B74449731BB24D20004B9498 /* AudioToolbox.framework */; };
 		B77F6D941BB5467F00FD555B /* MyTool.m in Sources */ = {isa = PBXBuildFile; fileRef = B77F6D931BB5467F00FD555B /* MyTool.m */; };
 		B780629F1BB548790099C52E /* AQConverter.mm in Sources */ = {isa = PBXBuildFile; fileRef = B78062981BB548790099C52E /* AQConverter.mm */; };
@@ -75,6 +76,8 @@
 		B70E4D4B1BB5A9B10083F4C9 /* IpodEQViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IpodEQViewCell.h; sourceTree = "<group>"; };
 		B70E4D4C1BB5A9B10083F4C9 /* IpodEQViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IpodEQViewCell.m; sourceTree = "<group>"; };
 		B70E4D4E1BB5B7860083F4C9 /* choosed@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "choosed@2x.png"; sourceTree = "<group>"; };
+		B72562941BB7C238005AF532 /* AQDownloader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AQDownloader.h; sourceTree = "<group>"; };
+		B72562951BB7C238005AF532 /* AQDownloader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AQDownloader.m; sourceTree = "<group>"; };
 		B74449711BB24D0B004B9498 /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = System/Library/Frameworks/CoreAudio.framework; sourceTree = SDKROOT; };
 		B74449731BB24D20004B9498 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		B74449741BB24D20004B9498 /* AudioUnit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioUnit.framework; path = System/Library/Frameworks/AudioUnit.framework; sourceTree = SDKROOT; };
@@ -269,6 +272,8 @@
 			children = (
 				B780629B1BB548790099C52E /* AQPlayer.h */,
 				B780629C1BB548790099C52E /* AQPlayer.mm */,
+				B72562941BB7C238005AF532 /* AQDownloader.h */,
+				B72562951BB7C238005AF532 /* AQDownloader.m */,
 				B78062971BB548790099C52E /* AQConverter.h */,
 				B78062981BB548790099C52E /* AQConverter.mm */,
 				B78062991BB548790099C52E /* AQGraph.h */,
@@ -524,6 +529,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B72562961BB7C238005AF532 /* AQDownloader.m in Sources */,
 				B780629F1BB548790099C52E /* AQConverter.mm in Sources */,
 				B79BDF091BB16309001083DA /* AFURLRequestSerialization.m in Sources */,
 				B79BDF081BB16309001083DA /* AFURLConnectionOperation.m in Sources */,

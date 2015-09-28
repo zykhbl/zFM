@@ -7,7 +7,6 @@
 //
 
 #import "AQDownloader.h"
-#import "AFNetworking.h"
 #import "MyTool.h"
 
 @implementation AQDownloader

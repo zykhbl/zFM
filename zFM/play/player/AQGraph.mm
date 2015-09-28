@@ -10,7 +10,7 @@
 #import "CAXException.h"
 
 static void SilenceData(AudioBufferList *inData) {
-	for (UInt32 i=0; i < inData->mNumberBuffers; i++)
+	for (UInt32 i = 0; i < inData->mNumberBuffers; ++i)
 		memset(inData->mBuffers[i].mData, 0, inData->mBuffers[i].mDataByteSize);
 }
 

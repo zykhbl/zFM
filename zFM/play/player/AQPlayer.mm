@@ -49,7 +49,9 @@
     [self.converter pause];
 }
 
-- (void)seek:(off_t)offset {
+- (void)seek:(CGFloat)value {
+    off_t offset = self.audioDataOffset + (self.downloader.contentLength - self.audioDataOffset) * value;
+    [self.converter setBytesCanRead:self.downloader.bytesReceived];
     [self.converter seek:offset];
 }
 
@@ -69,6 +71,7 @@
 }
 
 - (void)AQDownloader:(AQDownloader*)downloader signal:(BOOL)flag {
+    [self.converter setBytesCanRead:self.downloader.bytesReceived];
     [self.converter signal];
 }
 
@@ -79,6 +82,12 @@
         self.bitRate = bRate;
         NSTimeInterval duration = (self.downloader.contentLength - self.audioDataOffset) * 8 / self.bitRate;
         [self.delegate AQPlayer:self duration:duration];
+    }
+}
+
+- (void)AQConverter:(AQConverter*)converter timerStop:(BOOL)flag {
+    if (self.delegate && [self.delegate respondsToSelector:@selector(AQPlayer:timerStop:)]) {
+        [self.delegate AQPlayer:self timerStop:flag];
     }
 }
 

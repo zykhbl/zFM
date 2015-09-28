@@ -17,10 +17,10 @@
 
 - (void)doConvertFile:(NSString*)url;
 - (void)signal;
-- (void)signalOnEnd;
 
 - (void)play;
 - (void)pause;
+- (void)setBytesCanRead:(off_t)bytes;
 - (void)seek:(off_t)offset;
 
 - (void)selectIpodEQPreset:(NSInteger)index;
@@ -30,5 +30,6 @@
 @protocol AQConverterDelegate <NSObject>
 
 - (void)AQConverter:(AQConverter*)converter audioDataOffset:(UInt64)dataOffset bitRate:(UInt32)bRate;
+- (void)AQConverter:(AQConverter*)converter timerStop:(BOOL)flag;
 
 @end

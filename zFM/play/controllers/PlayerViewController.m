@@ -19,6 +19,7 @@
 @synthesize duration;
 @synthesize currentTime;
 @synthesize played;
+@synthesize timerStop;
 @synthesize longPressTaped;
 @synthesize beginTouchPoint;
 
@@ -51,7 +52,7 @@
     [self chagePlayBtnState];
 }
 
-- (void)handlePressTapMove:(UILongPressGestureRecognizer*)gestureRecognizer {
+- (void)handleMove:(UILongPressGestureRecognizer*)gestureRecognizer {
     CGPoint p = [gestureRecognizer locationInView:self.view];
     CGFloat dx = p.x - beginTouchPoint.x;
     
@@ -69,24 +70,21 @@
     [self.timeSlider setValue:per];
 }
 
-- (void)longPressTapMove:(UILongPressGestureRecognizer*)gestureRecognizer {
+- (void)move:(UILongPressGestureRecognizer*)gestureRecognizer {
     if ([gestureRecognizer state] == UIGestureRecognizerStateBegan) {
         self.longPressTaped = YES;
         self.beginTouchPoint = [gestureRecognizer locationInView:self.tapView];
     } else if ([gestureRecognizer state] == UIGestureRecognizerStateChanged) {
-        [self handlePressTapMove:gestureRecognizer];
+        [self handleMove:gestureRecognizer];
     } else if ([gestureRecognizer state] == UIGestureRecognizerStateCancelled) {
         self.longPressTaped = NO;
     } else if ([gestureRecognizer state] == UIGestureRecognizerStateEnded) {
-        [self handlePressTapMove:gestureRecognizer];
+        self.longPressTaped = NO;
+        [self handleMove:gestureRecognizer];
         
         CGFloat value = self.timeSlider.value;
         self.currentTime = self.duration * value;
-        off_t offset = (self.player.downloader.contentLength - self.player.audioDataOffset) * value;
-        
-        [self.player seek:offset];
-        
-        self.longPressTaped = NO;
+        [self.player seek:value];
     }
 }
 
@@ -98,7 +96,7 @@
     
     self.tapView = [[UIView alloc] initWithFrame:CGRectMake(10.0, 10.0, 30.0, 30.0)];
     self.tapView.backgroundColor = [UIColor clearColor];
-    UILongPressGestureRecognizer *longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(longPressTapMove:)];
+    UILongPressGestureRecognizer *longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(move:)];
     [self.tapView addGestureRecognizer:longPress];
     [self.view addSubview:self.tapView];
     
@@ -116,11 +114,12 @@
     [self.view addSubview:playBtn];
     
     self.played = NO;
+    self.timerStop = NO;
     self.longPressTaped = NO;
 }
 
 //============AQPlayerDelegate============
-- (void)modifyText {
+- (void)modifyStates {
     double last = self.duration - self.currentTime;
     int m = last / 60.0;
     int s = last - m * 60.0;
@@ -140,10 +139,14 @@
     }
 }
 
-- (void)modifyTime {
+- (void)timerFire {
     if (self.played) {
+        if (self.timerStop) {
+            return;
+        }
+        
         if (self.timer == nil) {
-            self.timer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(modifyTime) userInfo:nil repeats:YES];
+            self.timer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(timerFire) userInfo:nil repeats:YES];
         } else {
             self.currentTime += 1.0;
         }
@@ -151,7 +154,7 @@
         if (self.currentTime >  self.duration) {
             self.played = NO;
         } else {
-            [self performSelectorOnMainThread:@selector(modifyText) withObject:nil waitUntilDone:NO];
+            [self performSelectorOnMainThread:@selector(modifyStates) withObject:nil waitUntilDone:NO];
         }
     }
 }
@@ -160,16 +163,11 @@
     self.duration = d;
     self.currentTime = 0.0;
     
-    [self performSelectorOnMainThread:@selector(modifyTime) withObject:nil waitUntilDone:NO];
+    [self performSelectorOnMainThread:@selector(timerFire) withObject:nil waitUntilDone:NO];
 }
 
-- (void)AQPlayer:(AQPlayer*)player playing:(BOOL)flag {
-    BOOL lastState = self.played;
-    self.played = flag;
-    
-    if (lastState != self.played) {
-        [self performSelectorOnMainThread:@selector(chagePlayBtnState) withObject:nil waitUntilDone:NO];
-    }
+- (void)AQPlayer:(AQPlayer*)player timerStop:(BOOL)flag {
+    self.timerStop = flag;
 }
 
 @end

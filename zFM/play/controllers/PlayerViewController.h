@@ -22,6 +22,7 @@
 @property (nonatomic, assign) NSTimeInterval duration;
 @property (nonatomic, assign) NSTimeInterval currentTime;
 @property (nonatomic, assign) BOOL played;
+@property (nonatomic, assign) BOOL timerStop;
 @property (nonatomic, assign) BOOL longPressTaped;
 @property (nonatomic, assign) CGPoint beginTouchPoint;
 

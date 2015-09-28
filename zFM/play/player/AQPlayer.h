@@ -28,7 +28,7 @@
 
 - (void)play;
 - (void)pause;
-- (void)seek:(off_t)offset;
+- (void)seek:(CGFloat)value;
 
 - (void)selectIpodEQPreset:(NSInteger)index;
 
@@ -37,6 +37,6 @@
 @protocol AQPlayerDelegate <NSObject>
 
 - (void)AQPlayer:(AQPlayer*)player duration:(NSTimeInterval)d;
-- (void)AQPlayer:(AQPlayer*)player playing:(BOOL)flag;
+- (void)AQPlayer:(AQPlayer*)player timerStop:(BOOL)flag;
 
 @end

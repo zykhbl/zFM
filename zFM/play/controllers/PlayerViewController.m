@@ -36,8 +36,8 @@
     
     if (self.player == nil) {
 //        NSString *urlString = @"http://mobileapi.5sing.kugou.com/song/transcoding?songid=12626585&songtype=fc&bitrate=128";
-        NSString *urlString = @"http://mobileapi.5sing.kugou.com/song/transcoding?songid=12946453&songtype=fc&bitrate=128";
-//    NSString *urlString = @"http://mobileapi.5sing.kugou.com/song/transcoding?songid=2444839&songtype=yc&bitrate=128";
+//        NSString *urlString = @"http://mobileapi.5sing.kugou.com/song/transcoding?songid=12946453&songtype=fc&bitrate=128";
+    NSString *urlString = @"http://mobileapi.5sing.kugou.com/song/transcoding?songid=2444839&songtype=yc&bitrate=128";
         self.player = [AQPlayer sharedAQPlayer];
         self.player.delegate = self;
         [self.player play:urlString];

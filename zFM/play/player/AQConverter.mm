@@ -16,7 +16,9 @@
 
 static pthread_mutex_t mutex;
 static pthread_cond_t cond;
+
 static id<AQConverterDelegate> afioDelegate;
+static off_t bytesCanRead;
 
 enum {
     kMyAudioConverterErr_CannotResumeFromInterruptionError = 'CANT',
@@ -32,8 +34,6 @@ typedef struct {
 	UInt32                       srcSizePerPacket;
 	UInt32                       numPacketsPerRead;
 	AudioStreamPacketDescription *packetDescriptions;
-    
-    off_t                        bytesCanRead;
 } AudioFileIO, *AudioFileIOPtr;
 
 static void timerStop(BOOL flag) {
@@ -52,7 +52,7 @@ static OSStatus encoderDataProc(AudioConverterRef inAudioConverter, UInt32 *ioNu
     
     pthread_mutex_lock(&mutex);
     off_t offset = (afio->srcFilePos + *ioNumberDataPackets + 20) * afio->srcSizePerPacket;
-    while (offset >= afio->bytesCanRead) {
+    while (offset >= bytesCanRead) {
         timerStop(YES);
         
         pthread_cond_wait(&cond, &mutex);
@@ -336,7 +336,7 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
 }
 
 - (void)setBytesCanRead:(off_t)bytes {
-    self->afio->bytesCanRead = bytes;
+    bytesCanRead = bytes;
 }
 
 - (void)seek:(off_t)offset {

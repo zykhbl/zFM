@@ -17,14 +17,14 @@
 
 @property (nonatomic, assign) id<AQPlayerDelegate> delegate;
 @property (nonatomic, strong) AQDownloader *downloader;
-@property (nonatomic, strong) NSThread *bgConvertThread;
 @property (nonatomic, strong) AQConverter *converter;
 @property (nonatomic, assign) UInt64 audioDataOffset;
 @property (nonatomic, assign) UInt32 bitRate;
 
 + (void)playForeground;
-+ (AQPlayer*)getPlayer;
++ (id)sharedAQPlayer;
 
+- (void)cancel;
 - (void)play:(NSString*)url;
 
 - (void)play;

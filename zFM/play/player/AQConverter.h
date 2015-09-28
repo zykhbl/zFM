@@ -13,15 +13,18 @@
 
 @interface AQConverter : NSObject
 
-@property (nonatomic, assign) id<AQConverterDelegate> delegate;
+@property (nonatomic, weak) id<AQConverterDelegate> delegate;
 
 - (void)doConvertFile:(NSString*)url;
 - (void)signal;
 
 - (void)play;
 - (void)pause;
-- (void)setBytesCanRead:(off_t)bytes;
 - (void)seek:(off_t)offset;
+
+- (void)setBytesCanRead:(off_t)bytes;
+- (void)setStopRunloop:(BOOL)stop;
+- (void)delafioDelegate;
 
 - (void)selectIpodEQPreset:(NSInteger)index;
 

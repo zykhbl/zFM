@@ -12,11 +12,11 @@
 
 @interface AQDownloader : NSObject
 
-@property (nonatomic, assign) id<AQDownloaderDelegate> delegate;
+@property (nonatomic, weak) id<AQDownloaderDelegate> delegate;
 @property (nonatomic, strong) NSString *downloadDir;
 @property (nonatomic, strong) NSString *downloadFilePath;
 @property (nonatomic, assign) BOOL converted;
-@property (nonatomic, assign) int contentLength;
+@property (nonatomic, assign) off_t contentLength;
 @property (nonatomic, assign) int bytesReceived;
 @property (nonatomic, assign) int wfd;
 

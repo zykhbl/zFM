@@ -83,7 +83,8 @@ static OSStatus renderNotification(void *inRefCon, AudioUnitRenderActionFlags *i
 @property (nonatomic, assign) CAStreamBasicDescription mClientFormat;
 @property (nonatomic, assign) CAStreamBasicDescription mOutputFormat;
 
-@property (nonatomic, assign) SourceAudioBufferData mUserData;
+@property (nonatomic, strong) AQRing *ring;
+@property (nonatomic, assign) SourceAudioBufferDataPtr mUserData;
 
 @property (nonatomic, assign) UInt32 bands;
 
@@ -101,6 +102,7 @@ static OSStatus renderNotification(void *inRefCon, AudioUnitRenderActionFlags *i
 @synthesize iPodEQ;
 @synthesize mClientFormat;
 @synthesize mOutputFormat;
+@synthesize ring;
 @synthesize mUserData;
 @synthesize bands;
 
@@ -113,12 +115,16 @@ static OSStatus renderNotification(void *inRefCon, AudioUnitRenderActionFlags *i
         DisposeAUGraph(self.mGraph);
     }
     
-    if (self.mUserData.soundBuffer[0].data != nil) {
-        self.mUserData.soundBuffer[0].data = nil;
-    }
-    
-    if (self.mUserData.soundBuffer[1].data != nil) {
-        self.mUserData.soundBuffer[1].data = nil;
+    if (self.mUserData != NULL) {
+        if (self.mUserData->soundBuffer[0].data != nil) {
+            self.mUserData->soundBuffer[0].data = nil;
+        }
+        
+        if (self.mUserData->soundBuffer[1].data != nil) {
+            self.mUserData->soundBuffer[1].data = nil;
+        }
+        
+        free(self.mUserData);
     }
     
     CFRelease(self.mEQPresetsArray);
@@ -126,7 +132,9 @@ static OSStatus renderNotification(void *inRefCon, AudioUnitRenderActionFlags *i
 
 - (void)awakeFromNib {
     NSLog(@"awakeFromNib \n");
-	memset(&mUserData.soundBuffer, 0, sizeof(self.mUserData.soundBuffer));
+    
+    self.mUserData = (SourceAudioBufferDataPtr)malloc(sizeof(SourceAudioBufferData));
+	memset(self.mUserData->soundBuffer, 0, sizeof(self.mUserData->soundBuffer));
 }
 
 - (void)initializeAUGraph {
@@ -160,7 +168,7 @@ static OSStatus renderNotification(void *inRefCon, AudioUnitRenderActionFlags *i
         for (UInt32 i = 0; i < numbuses; ++i) {
             AURenderCallbackStruct rcbs;
             rcbs.inputProc = &renderInput;
-            rcbs.inputProcRefCon = &mUserData;
+            rcbs.inputProcRefCon = self.mUserData;
             
             XThrowIfError(AUGraphSetNodeInputCallback(self.mGraph, self.mixerNode, i, &rcbs), "AUGraphSetNodeInputCallback failed!");
             XThrowIfError(AudioUnitSetProperty(self.mMixer, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Input, i, &mClientFormat, sizeof(self.mClientFormat)), "AudioUnitSetProperty failed!");
@@ -190,7 +198,7 @@ static OSStatus renderNotification(void *inRefCon, AudioUnitRenderActionFlags *i
         XThrowIfError(AudioUnitGetProperty(self.iPodEQ, kAudioUnitProperty_FactoryPresets, kAudioUnitScope_Global, 0, &mEQPresetsArray, &size), "AudioUnitGetProperty failed!");
         XThrowIfError(AudioUnitSetProperty(self.iPodEQ, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Output, 0, &mOutputFormat, sizeof(self.mOutputFormat)), "AudioUnitSetProperty failed!");
         
-        XThrowIfError(AUGraphAddRenderNotify(self.mGraph, renderNotification, &mUserData), "AUGraphAddRenderNotify failed!");
+        XThrowIfError(AUGraphAddRenderNotify(self.mGraph, renderNotification, self.mUserData), "AUGraphAddRenderNotify failed!");
         XThrowIfError(AUGraphInitialize(self.mGraph), "AUGraphInitialize failed!");
         CAShow(self.mGraph);
     } catch (CAXException e) {
@@ -204,12 +212,13 @@ static OSStatus renderNotification(void *inRefCon, AudioUnitRenderActionFlags *i
     self.mClientFormat = asbd;
     self.mOutputFormat = asbd;
     
-    self.mUserData.soundBuffer[0].asbd = mClientFormat;
-    self.mUserData.soundBuffer[0].data = [[AQRing alloc] init];
+    self.mUserData->soundBuffer[0].asbd = mClientFormat;
+    self.ring = [[AQRing alloc] init];
+    self.mUserData->soundBuffer[0].data = self.ring;
 }
 
 - (void)addBuf:(const void*)inInputData numberBytes:(UInt32)inNumberBytes {
-    [self.mUserData.soundBuffer[0].data putData:inInputData numberBytes:inNumberBytes];
+    [self.mUserData->soundBuffer[0].data putData:inInputData numberBytes:inNumberBytes];
 }
 
 - (void)enableInput:(UInt32)inputNum isOn:(AudioUnitParameterValue)isONValue {

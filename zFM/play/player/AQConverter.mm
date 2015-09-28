@@ -19,6 +19,7 @@ static pthread_cond_t cond;
 
 static id<AQConverterDelegate> afioDelegate;
 static off_t bytesCanRead;
+static BOOL stopRunloop;
 
 enum {
     kMyAudioConverterErr_CannotResumeFromInterruptionError = 'CANT',
@@ -52,7 +53,7 @@ static OSStatus encoderDataProc(AudioConverterRef inAudioConverter, UInt32 *ioNu
     
     pthread_mutex_lock(&mutex);
     off_t offset = (afio->srcFilePos + *ioNumberDataPackets + 20) * afio->srcSizePerPacket;
-    while (offset >= bytesCanRead) {
+    while (offset >= bytesCanRead && !stopRunloop) {
         timerStop(YES);
         
         pthread_cond_wait(&cond, &mutex);
@@ -64,7 +65,7 @@ static OSStatus encoderDataProc(AudioConverterRef inAudioConverter, UInt32 *ioNu
     
     pthread_mutex_lock(&mutex);
     OSStatus error = AudioFileReadPackets(afio->srcFileID, false, &outNumBytes, afio->packetDescriptions, afio->srcFilePos, ioNumberDataPackets, afio->srcBuffer);
-    while (error && eofErr != error) {
+    while ((error && eofErr != error) && !stopRunloop) {
         timerStop(YES);
         
         pthread_cond_wait(&cond, &mutex);
@@ -131,11 +132,11 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
 @implementation AQConverter
 
 @synthesize delegate;
+
 @synthesize converter;
 @synthesize sourceFileID;
 @synthesize afio;
 @synthesize outputBuffer;
-
 @synthesize graph;
 
 - (void)dealloc {
@@ -180,6 +181,7 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
         pthread_mutex_init(&mutex, NULL);
         pthread_cond_init(&cond, NULL);
         
+        stopRunloop = NO;
         self.sourceFileID = 0;
         self.converter = 0;
         self.outputBuffer = NULL;
@@ -201,7 +203,7 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
         
         pthread_mutex_lock(&mutex);
         OSStatus error = AudioFileOpenURL(sourceURL, kAudioFileReadPermission, 0, &sourceFileID);
-        while (error) {
+        while (error && !stopRunloop) {
             timerStop(YES);
             
             pthread_cond_wait(&cond, &mutex);
@@ -305,7 +307,7 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
         }
         
         UInt32 numOutputPackets = theOutputBufSize / outputSizePerPacket;
-        while (1) {
+        while (!stopRunloop) {
             AudioBufferList fillBufList;
             fillBufList.mNumberBuffers = 1;
             fillBufList.mBuffers[0].mNumberChannels = dstFormat.mChannelsPerFrame;
@@ -358,13 +360,21 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
     [self.graph stopAUGraph];
 }
 
+- (void)seek:(off_t)offset {
+    UInt32 offsetPackets = (UInt32)(offset / self.afio->srcSizePerPacket) + 1;
+    self.afio->srcFilePos = offsetPackets;
+}
+
 - (void)setBytesCanRead:(off_t)bytes {
     bytesCanRead = bytes;
 }
 
-- (void)seek:(off_t)offset {
-    UInt32 offsetPackets = (UInt32)(offset / self.afio->srcSizePerPacket) + 1;
-    self.afio->srcFilePos = offsetPackets;
+- (void)setStopRunloop:(BOOL)stop {
+    stopRunloop = stop;
+}
+
+- (void)delafioDelegate {
+    afioDelegate = nil;
 }
 
 - (void)selectIpodEQPreset:(NSInteger)index {

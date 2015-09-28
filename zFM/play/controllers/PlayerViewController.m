@@ -18,6 +18,7 @@
 @synthesize tapView;
 @synthesize duration;
 @synthesize currentTime;
+@synthesize playOtherSong;
 @synthesize played;
 @synthesize timerStop;
 @synthesize longPressTaped;
@@ -34,11 +35,13 @@
 - (IBAction)play:(id)sender {
     self.played = !self.played;
     
-    if (self.player == nil) {
-//        NSString *urlString = @"http://mobileapi.5sing.kugou.com/song/transcoding?songid=12626585&songtype=fc&bitrate=128";
+    if (self.player == nil || self.playOtherSong) {
+        self.playOtherSong = NO;
+        self.timerStop = NO;
+        NSString *urlString = @"http://mobileapi.5sing.kugou.com/song/transcoding?songid=12626585&songtype=fc&bitrate=128";
 //        NSString *urlString = @"http://mobileapi.5sing.kugou.com/song/transcoding?songid=12946453&songtype=fc&bitrate=128";
-    NSString *urlString = @"http://mobileapi.5sing.kugou.com/song/transcoding?songid=2444839&songtype=yc&bitrate=128";
-        self.player = [[AQPlayer alloc] init];
+//    NSString *urlString = @"http://mobileapi.5sing.kugou.com/song/transcoding?songid=2444839&songtype=yc&bitrate=128";
+        self.player = [AQPlayer sharedAQPlayer];
         self.player.delegate = self;
         [self.player play:urlString];
     } else {
@@ -113,6 +116,7 @@
     [self.playBtn addTarget:self action:@selector(play:) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:playBtn];
     
+    self.playOtherSong = YES;
     self.played = NO;
     self.timerStop = NO;
     self.longPressTaped = NO;
@@ -129,7 +133,10 @@
     self.timeLabel.text = [NSString stringWithFormat:@"%@:%@", mStr, sStr];
     
     if (!self.longPressTaped) {
-        double per = self.currentTime / self.duration;
+        double per = 0.0;
+        if (self.duration != 0.0) {
+            per = self.currentTime / self.duration;
+        }
         [self.timeSlider setValue:per animated:YES];
         
         CGRect sliderRect = self.timeSlider.frame;
@@ -151,12 +158,7 @@
             self.currentTime += 1.0;
         }
         
-        if (self.currentTime >=  self.duration) {
-            self.played = NO;
-            self.player = nil;
-            
-            [self performSelectorOnMainThread:@selector(chagePlayBtnState) withObject:nil waitUntilDone:NO];
-        } else {
+        if (self.currentTime < self.duration) {
             [self performSelectorOnMainThread:@selector(modifyStates) withObject:nil waitUntilDone:NO];
         }
     }
@@ -171,6 +173,18 @@
 
 - (void)AQPlayer:(AQPlayer*)player timerStop:(BOOL)flag {
     self.timerStop = flag;
+    
+    if (self.currentTime + 2.0 >=  self.duration) {
+        self.currentTime = self.duration = 0.0;
+        self.playOtherSong = YES;
+        self.played = NO;
+        self.timerStop = NO;
+        self.longPressTaped = NO;
+        [self.player cancel];
+        
+        [self performSelectorOnMainThread:@selector(modifyStates) withObject:nil waitUntilDone:NO];
+        [self performSelectorOnMainThread:@selector(chagePlayBtnState) withObject:nil waitUntilDone:NO];
+    }
 }
 
 @end

@@ -9,13 +9,10 @@
 #import "AQPlayer.h"
 #import <AVFoundation/AVFoundation.h>
 
-static AQPlayer *player = nil;
-
 @implementation AQPlayer
 
 @synthesize delegate;
 @synthesize downloader;
-@synthesize bgConvertThread;
 @synthesize converter;
 @synthesize audioDataOffset;
 @synthesize bitRate;
@@ -26,26 +23,21 @@ static AQPlayer *player = nil;
     [session setCategory:AVAudioSessionCategoryPlayback error:nil];
 }
 
-+ (AQPlayer*)getPlayer {
-    return player;
++ (id)sharedAQPlayer {
+    static dispatch_once_t pred = 0;
+    __strong static id _sharedObject = nil;
+    dispatch_once(&pred, ^{
+        _sharedObject = [[self alloc]init];
+    });
+    return _sharedObject;
 }
 
-- (void)dealloc {
-    NSLog(@"++++++++++ AQPlayer dealloc! ++++++++++ \n");
-    
-    if (self.bgConvertThread) {
-        [self.bgConvertThread cancel];
-    }
-    
-    player = nil;
-}
-
-- (id)init {
-    self = [super init];
-    if (self) {
-        player = self;
-    }
-    return self;
+- (void)cancel {
+    self.downloader = nil;
+    [self.converter setStopRunloop:YES];
+    [self.converter signal];
+    [self.converter delafioDelegate];
+    self.converter = nil;
 }
 
 - (void)play:(NSString*)url {
@@ -78,17 +70,14 @@ static AQPlayer *player = nil;
 }
 
 //===========protocol AQDownloaderDelegate===========
-- (void)convertOnThread:(NSString*)filePath {
-    if (self.converter == nil) {
-        self.converter = [[AQConverter alloc] init];
-        self.converter.delegate = self;
-    }
-    [self.converter doConvertFile:filePath];
-}
-
 - (void)AQDownloader:(AQDownloader*)downloader convert:(NSString*)filePath {
-    self.bgConvertThread = [[NSThread alloc] initWithTarget:self selector:@selector(convertOnThread:) object:filePath];
-    [self.bgConvertThread start];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        if (self.converter == nil) {
+            self.converter = [[AQConverter alloc] init];
+            self.converter.delegate = self;
+        }
+        [self.converter doConvertFile:filePath];
+    });
 }
 
 - (void)AQDownloader:(AQDownloader*)downloader signal:(BOOL)flag {

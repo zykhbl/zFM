@@ -8,51 +8,12 @@
 
 #import <CoreFoundation/CoreFoundation.h>
 #import <AudioToolbox/AudioToolbox.h>
-#import <AudioUnit/AudioUnit.h>
-#import "AQRing.h"
-
-#import "CAStreamBasicDescription.h"
-#import "CAComponentDescription.h"
 
 #define MAXBUFS  2
 #define NUMFILES 2
 
-typedef struct {
-    AudioStreamBasicDescription asbd;
-    AQRing *data;
-} SoundBuffer, *SoundBufferPtr;
+@interface AQGraph : NSObject
 
-typedef struct {
-    SoundBuffer soundBuffer[MAXBUFS];
-} SourceAudioBufferData, *SourceAudioBufferDataPtr;
-
-@interface AQGraph : NSObject {
-	AUGraph   mGraph;
-    
-    AUNode mixerNode;
-    AUNode eqNode;
-    AUNode ipodEQNode;
-    AUNode outputNode;
-    
-    AudioUnit mMixer;
-    AudioUnit mEQ;
-    AudioUnit iPodEQ;
-    
-    CAStreamBasicDescription mClientFormat;
-    CAStreamBasicDescription mOutputFormat;
-    
-    CFArrayRef mEQPresetsArray;
-    
-    SourceAudioBufferData mUserData;
-
-	Boolean mIsPlaying;
-    
-    UInt32 noBands;
-    BOOL isCustom;
-    BOOL isIPodDefined;
-}
-
-@property (readonly, nonatomic, getter=isPlaying) Boolean mIsPlaying;
 @property (readonly, nonatomic, getter=iPodEQPresetsArray) CFArrayRef mEQPresetsArray;
 
 - (void)awakeFromNib;

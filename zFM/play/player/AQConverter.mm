@@ -119,7 +119,11 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
 
 @interface AQConverter ()
 
+@property (nonatomic, assign) AudioConverterRef converter;
+@property (nonatomic, assign) AudioFileID sourceFileID;
 @property (nonatomic, assign) AudioFileIOPtr afio;
+@property (nonatomic, assign) char *outputBuffer;
+@property (nonatomic, assign) AudioStreamPacketDescription *outputPacketDescriptions;
 @property (nonatomic, strong) AQGraph *graph;
 
 @end
@@ -127,13 +131,44 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
 @implementation AQConverter
 
 @synthesize delegate;
+@synthesize converter;
+@synthesize sourceFileID;
 @synthesize afio;
+@synthesize outputBuffer;
+
 @synthesize graph;
 
 - (void)dealloc {
+     NSLog(@"++++++++++ AQConverter dealloc! ++++++++++ \n");
+    
+    if (self.converter) {
+        AudioConverterDispose(self.converter);
+    }
+    
+	if (self.sourceFileID) {
+        AudioFileClose(self.sourceFileID);
+    }
+    
     if (self.afio != NULL) {
+        if (self.afio->srcBuffer) {
+            delete [] self.afio->srcBuffer;
+        }
+        
+        if (self.afio->packetDescriptions) {
+            delete [] self.afio->packetDescriptions;
+        }
+        
         free(self.afio);
     }
+    
+    if (self.outputBuffer) {
+        delete [] self.outputBuffer;
+    }
+    
+    if (self.outputPacketDescriptions) {
+        delete [] self.outputPacketDescriptions;
+    }
+    
     pthread_mutex_destroy(&mutex);
     pthread_cond_destroy(&cond);
 }
@@ -144,22 +179,22 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
     if (self) {
         pthread_mutex_init(&mutex, NULL);
         pthread_cond_init(&cond, NULL);
+        
+        self.sourceFileID = 0;
+        self.converter = 0;
+        self.outputBuffer = NULL;
+        self.outputPacketDescriptions = NULL;
     }
     
     return self;
 }
 
 - (void)doConvertFile:(NSString*)url {
-	AudioFileID         sourceFileID = 0;
-    AudioConverterRef   converter = NULL;
-    Boolean             canResumeFromInterruption = true;
-    
+    Boolean canResumeFromInterruption = true;
     CAStreamBasicDescription srcFormat, dstFormat;
+    
     self.afio = (AudioFileIOPtr)malloc(sizeof(AudioFileIO));
     afioDelegate = self.delegate;
-    
-    char *outputBuffer = NULL;
-    AudioStreamPacketDescription *outputPacketDescriptions = NULL;
     
     try {
         CFURLRef sourceURL = CFURLCreateWithFileSystemPath(kCFAllocatorDefault, (CFStringRef)url, kCFURLPOSIXPathStyle, false);
@@ -177,15 +212,15 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
         CFRelease(sourceURL);
         
         UInt32 size = sizeof(srcFormat);
-        XThrowIfError(AudioFileGetProperty(sourceFileID, kAudioFilePropertyDataFormat, &size, &srcFormat), "couldn't get source data format");
+        XThrowIfError(AudioFileGetProperty(self.sourceFileID, kAudioFilePropertyDataFormat, &size, &srcFormat), "couldn't get source data format");
         
         UInt64 audioDataOffset = 0;
         size = sizeof(audioDataOffset);
-        XThrowIfError(AudioFileGetProperty(sourceFileID, kAudioFilePropertyDataOffset, &size, &audioDataOffset), "couldn't get kAudioFilePropertyDataOffset");
+        XThrowIfError(AudioFileGetProperty(self.sourceFileID, kAudioFilePropertyDataOffset, &size, &audioDataOffset), "couldn't get kAudioFilePropertyDataOffset");
         
         UInt32 bitRate = 0;
         size = sizeof(bitRate);
-        XThrowIfError(AudioFileGetProperty(sourceFileID, kAudioFilePropertyBitRate, &size, &bitRate), "couldn't get kAudioFilePropertyBitRate");
+        XThrowIfError(AudioFileGetProperty(self.sourceFileID, kAudioFilePropertyBitRate, &size, &bitRate), "couldn't get kAudioFilePropertyBitRate");
         if (self.delegate && [self.delegate respondsToSelector:@selector(AQConverter:audioDataOffset:bitRate:)]) {
             [self.delegate AQConverter:self audioDataOffset:audioDataOffset bitRate:bitRate];
         }
@@ -200,17 +235,17 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
         
         XThrowIfError(AudioConverterNew(&srcFormat, &dstFormat, &converter), "AudioConverterNew failed!");
         
-        readCookie(sourceFileID, converter);
+        readCookie(self.sourceFileID, self.converter);
         
         size = sizeof(srcFormat);
-        XThrowIfError(AudioConverterGetProperty(converter, kAudioConverterCurrentInputStreamDescription, &size, &srcFormat), "AudioConverterGetProperty kAudioConverterCurrentInputStreamDescription failed!");
+        XThrowIfError(AudioConverterGetProperty(self.converter, kAudioConverterCurrentInputStreamDescription, &size, &srcFormat), "AudioConverterGetProperty kAudioConverterCurrentInputStreamDescription failed!");
         
         size = sizeof(dstFormat);
-        XThrowIfError(AudioConverterGetProperty(converter, kAudioConverterCurrentOutputStreamDescription, &size, &dstFormat), "AudioConverterGetProperty kAudioConverterCurrentOutputStreamDescription failed!");
+        XThrowIfError(AudioConverterGetProperty(self.converter, kAudioConverterCurrentOutputStreamDescription, &size, &dstFormat), "AudioConverterGetProperty kAudioConverterCurrentOutputStreamDescription failed!");
         
         UInt32 canResume = 0;
         size = sizeof(canResume);
-        error = AudioConverterGetProperty(converter, kAudioConverterPropertyCanResumeFromInterruption, &size, &canResume);
+        error = AudioConverterGetProperty(self.converter, kAudioConverterPropertyCanResumeFromInterruption, &size, &canResume);
         if (noErr == error) {
             if (0 == canResume) {
                 canResumeFromInterruption = false;
@@ -242,7 +277,7 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
             [self.graph startAUGraph];
         }
         
-        self.afio->srcFileID = sourceFileID;
+        self.afio->srcFileID = self.sourceFileID;
         self.afio->srcBufferSize = kDefaultSize;
         self.afio->srcBuffer = new char [self.afio->srcBufferSize];
         self.afio->srcFilePos = 0;
@@ -250,10 +285,8 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
 		
         if (srcFormat.mBytesPerPacket == 0) {
             size = sizeof(self.afio->srcSizePerPacket);
-            XThrowIfError(AudioFileGetProperty(sourceFileID, kAudioFilePropertyPacketSizeUpperBound, &size, &self.afio->srcSizePerPacket), "AudioFileGetProperty kAudioFilePropertyMaximumPacketSize failed!");
-            
+            XThrowIfError(AudioFileGetProperty(self.sourceFileID, kAudioFilePropertyPacketSizeUpperBound, &size, &self.afio->srcSizePerPacket), "AudioFileGetProperty kAudioFilePropertyMaximumPacketSize failed!");
             self.afio->numPacketsPerRead = self.afio->srcBufferSize / self.afio->srcSizePerPacket;
-            
             self.afio->packetDescriptions = new AudioStreamPacketDescription [self.afio->numPacketsPerRead];
         } else {
             self.afio->srcSizePerPacket = srcFormat.mBytesPerPacket;
@@ -263,17 +296,15 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
         
         UInt32 outputSizePerPacket = dstFormat.mBytesPerPacket;
         UInt32 theOutputBufSize = kDefaultSize;
-        outputBuffer = new char[theOutputBufSize];
+        self.outputBuffer = new char[theOutputBufSize];
         
         if (outputSizePerPacket == 0) {
             size = sizeof(outputSizePerPacket);
-            XThrowIfError(AudioConverterGetProperty(converter, kAudioConverterPropertyMaximumOutputPacketSize, &size, &outputSizePerPacket), "AudioConverterGetProperty kAudioConverterPropertyMaximumOutputPacketSize failed!");
-            
-            outputPacketDescriptions = new AudioStreamPacketDescription [theOutputBufSize / outputSizePerPacket];
+            XThrowIfError(AudioConverterGetProperty(self.converter, kAudioConverterPropertyMaximumOutputPacketSize, &size, &outputSizePerPacket), "AudioConverterGetProperty kAudioConverterPropertyMaximumOutputPacketSize failed!");
+            self.outputPacketDescriptions = new AudioStreamPacketDescription [theOutputBufSize / outputSizePerPacket];
         }
         
         UInt32 numOutputPackets = theOutputBufSize / outputSizePerPacket;
-        
         while (1) {
             AudioBufferList fillBufList;
             fillBufList.mNumberBuffers = 1;
@@ -287,7 +318,7 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
             }
 
             UInt32 ioOutputDataPackets = numOutputPackets;
-            error = AudioConverterFillComplexBuffer(converter, encoderDataProc, self.afio, &ioOutputDataPackets, &fillBufList, outputPacketDescriptions);
+            error = AudioConverterFillComplexBuffer(self.converter, encoderDataProc, self.afio, &ioOutputDataPackets, &fillBufList, self.outputPacketDescriptions);
             if (error) {
                 if (kAudioConverterErr_HardwareInUse == error) {
                     printf("Audio Converter returned kAudioConverterErr_HardwareInUse!\n");
@@ -311,14 +342,6 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
 		char buf[256];
 		fprintf(stderr, "Error: %s (%s)\n", e.mOperation, e.FormatError(buf));
 	}
-    
-    if (converter) AudioConverterDispose(converter);
-	if (sourceFileID) AudioFileClose(sourceFileID);
-    
-    if (self.afio->srcBuffer) delete [] self.afio->srcBuffer;
-    if (self.afio->packetDescriptions) delete [] self.afio->packetDescriptions;
-    if (outputBuffer) delete [] outputBuffer;
-    if (outputPacketDescriptions) delete [] outputPacketDescriptions;
 }
 
 - (void)signal {

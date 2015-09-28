@@ -9,17 +9,14 @@
 #import <Foundation/Foundation.h>
 #include <pthread.h>
 
-@interface AQRing : NSObject {
-    int capacity;
-    
-    int readOffset;
-    int writeOffset;
-    
-    void *container;
-    
-    pthread_mutex_t mutex;
-    pthread_cond_t cond;
-}
+@interface AQRing : NSObject
+
+@property (nonatomic, assign) int capacity;
+@property (nonatomic, assign) int readOffset;
+@property (nonatomic, assign) int writeOffset;
+@property (nonatomic, assign) void *container;
+@property (nonatomic, assign) pthread_mutex_t mutex;
+@property (nonatomic, assign) pthread_cond_t cond;
 
 - (BOOL)isEmpty;
 - (int)size;

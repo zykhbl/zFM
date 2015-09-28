@@ -20,8 +20,6 @@
 @property (nonatomic, assign) int bytesReceived;
 @property (nonatomic, assign) int wfd;
 
-+ (AQDownloader*)sharedAQDownloader;
-
 - (void)download:(NSString*)url;
 
 @end

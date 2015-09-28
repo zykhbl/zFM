@@ -75,8 +75,10 @@
 }
 
 - (void)tableView:(UITableView *)tView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    AQPlayer *player = [AQPlayer sharedAQPlayer];
-    [player selectIpodEQPreset:indexPath.row];
+    AQPlayer *player = [AQPlayer getPlayer];
+    if (player != nil) {
+        [player selectIpodEQPreset:indexPath.row];
+    }
     
     NSArray *dataArray = (NSArray*)[self.dict objectForKey:@"ipodEQS"];
     for (int i = 0; i < [dataArray count]; ++i) {

@@ -19,13 +19,8 @@
 @synthesize contentLength;
 @synthesize wfd;
 
-+ (AQDownloader*)sharedAQDownloader {
-    static dispatch_once_t pred = 0;
-    __strong static id _sharedObject = nil;
-    dispatch_once(&pred, ^{
-        _sharedObject = [[self alloc] init];
-    });
-    return _sharedObject;
+- (void)dealloc {
+    NSLog(@"++++++++++ AQDownloader dealloc! ++++++++++ \n");
 }
 
 - (id)init {
@@ -93,7 +88,7 @@
     if (self.bytesReceived > self.contentLength * 0.01) {
         if (!self.converted) {
             self.converted = YES;
-            [self performSelectorInBackground:@selector(convert) withObject:nil];
+            [self convert];
         } else {
             [self signal:NO];
         }

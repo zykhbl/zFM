@@ -20,7 +20,7 @@
 		B74449751BB24D20004B9498 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B74449731BB24D20004B9498 /* AudioToolbox.framework */; };
 		B77F6D941BB5467F00FD555B /* MyTool.m in Sources */ = {isa = PBXBuildFile; fileRef = B77F6D931BB5467F00FD555B /* MyTool.m */; };
 		B780629F1BB548790099C52E /* AQConverter.mm in Sources */ = {isa = PBXBuildFile; fileRef = B78062981BB548790099C52E /* AQConverter.mm */; };
-		B78062A01BB548790099C52E /* AQGraph.mm in Sources */ = {isa = PBXBuildFile; fileRef = B780629A1BB548790099C52E /* AQGraph.mm */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		B78062A01BB548790099C52E /* AQGraph.mm in Sources */ = {isa = PBXBuildFile; fileRef = B780629A1BB548790099C52E /* AQGraph.mm */; };
 		B78062A11BB548790099C52E /* AQPlayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = B780629C1BB548790099C52E /* AQPlayer.mm */; };
 		B78062A21BB548790099C52E /* AQRing.m in Sources */ = {isa = PBXBuildFile; fileRef = B780629E1BB548790099C52E /* AQRing.m */; };
 		B78062AD1BB5489E0099C52E /* CAComponentDescription.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B78062A51BB5489E0099C52E /* CAComponentDescription.cpp */; };

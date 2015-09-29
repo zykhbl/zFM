@@ -181,6 +181,7 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
         pthread_mutex_init(&mutex, NULL);
         pthread_cond_init(&cond, NULL);
         
+        afioDelegate = nil;
         stopRunloop = NO;
         self.sourceFileID = 0;
         self.converter = 0;
@@ -312,7 +313,7 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
             fillBufList.mNumberBuffers = 1;
             fillBufList.mBuffers[0].mNumberChannels = dstFormat.mChannelsPerFrame;
             fillBufList.mBuffers[0].mDataByteSize = theOutputBufSize;
-            fillBufList.mBuffers[0].mData = outputBuffer;
+            fillBufList.mBuffers[0].mData = self.outputBuffer;
             
             if (error && (false == canResumeFromInterruption)) {
                 error = kMyAudioConverterErr_CannotResumeFromInterruptionError;
@@ -363,6 +364,7 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
 - (void)seek:(off_t)offset {
     UInt32 offsetPackets = (UInt32)(offset / self.afio->srcSizePerPacket) + 1;
     self.afio->srcFilePos = offsetPackets;
+    [self signal];
 }
 
 - (void)setBytesCanRead:(off_t)bytes {
@@ -371,10 +373,6 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
 
 - (void)setStopRunloop:(BOOL)stop {
     stopRunloop = stop;
-}
-
-- (void)delafioDelegate {
-    afioDelegate = nil;
 }
 
 - (void)selectIpodEQPreset:(NSInteger)index {

@@ -100,6 +100,7 @@
     self.tapView = [[UIView alloc] initWithFrame:CGRectMake(10.0, 10.0, 30.0, 30.0)];
     self.tapView.backgroundColor = [UIColor clearColor];
     UILongPressGestureRecognizer *longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(move:)];
+    longPress.minimumPressDuration = 0.1;
     [self.tapView addGestureRecognizer:longPress];
     [self.view addSubview:self.tapView];
     

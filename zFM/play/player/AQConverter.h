@@ -24,7 +24,6 @@
 
 - (void)setBytesCanRead:(off_t)bytes;
 - (void)setStopRunloop:(BOOL)stop;
-- (void)delafioDelegate;
 
 - (void)selectIpodEQPreset:(NSInteger)index;
 

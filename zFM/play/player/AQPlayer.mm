@@ -36,7 +36,6 @@
     self.downloader = nil;
     [self.converter setStopRunloop:YES];
     [self.converter signal];
-    [self.converter delafioDelegate];
     self.converter = nil;
 }
 

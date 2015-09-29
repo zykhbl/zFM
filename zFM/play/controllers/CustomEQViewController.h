@@ -10,4 +10,8 @@
 
 @interface CustomEQViewController : UIViewController
 
+@property (nonatomic, strong) UISegmentedControl *segmentedControl;
+@property (nonatomic, strong) NSMutableArray *sliderArray;
+@property (nonatomic, strong) NSMutableArray *labelArray;
+
 @end

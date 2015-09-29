@@ -68,6 +68,12 @@
     }    
 }
 
+- (void)changeEQ:(int)index value:(CGFloat)v {
+    if (self.converter != nil) {
+        [self.converter changeEQ:index value:v];
+    }
+}
+
 //===========protocol AQDownloaderDelegate===========
 - (void)AQDownloader:(AQDownloader*)downloader convert:(NSString*)filePath {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{

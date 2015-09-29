@@ -26,6 +26,7 @@
 - (void)setStopRunloop:(BOOL)stop;
 
 - (void)selectIpodEQPreset:(NSInteger)index;
+- (void)changeEQ:(int)index value:(CGFloat)v;
 
 @end
 

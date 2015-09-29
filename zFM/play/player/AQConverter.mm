@@ -381,4 +381,10 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
     }
 }
 
+- (void)changeEQ:(int)index value:(CGFloat)v {
+    if (self.graph != nil) {
+        [self.graph changeEQ:index value:v];
+    }
+}
+
 @end

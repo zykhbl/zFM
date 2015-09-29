@@ -9,18 +9,14 @@
 #import "IpodEQViewController.h"
 #import "IpodEQViewCell.h"
 #import "AQPlayer.h"
+#import "IpodEQ.h"
 
 @implementation IpodEQViewController
 
 @synthesize tableView;
-@synthesize dict;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
-    if (self.dict == nil) {
-        self.dict = [NSMutableDictionary dictionaryWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"ipodEQ.plist" ofType:nil]];
-    }
     
     if (self.tableView == nil) {
         CGRect rect = self.view.bounds;
@@ -39,7 +35,7 @@
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    NSArray *dataArray = (NSArray*)[self.dict objectForKey:@"ipodEQS"];
+    NSArray *dataArray = [[IpodEQ sharedIpodEQ] ipodEQS];
     return [dataArray count];
 }
 
@@ -55,13 +51,13 @@
     rect.size.height = 40.0;
     cell.frame = rect;
     
-    NSArray *dataArray = (NSArray*)[self.dict objectForKey:@"ipodEQS"];
+    NSArray *dataArray = [[IpodEQ sharedIpodEQ] ipodEQS];
     cell.textLabel.text = [dataArray objectAtIndex:indexPath.row];
     
     [cell addChoosedImageView];
     
-    NSNumber *selected = [self.dict objectForKey:@"selected"];
-    if (indexPath.row == selected.intValue) {
+    int selected = [[IpodEQ sharedIpodEQ] selected];
+    if (indexPath.row == selected) {
         cell.choosedImageView.hidden = NO;
     } else {
         cell.choosedImageView.hidden = YES;
@@ -78,12 +74,12 @@
     AQPlayer *player = [AQPlayer sharedAQPlayer];
     [player selectIpodEQPreset:indexPath.row];
     
-    NSArray *dataArray = (NSArray*)[self.dict objectForKey:@"ipodEQS"];
+    NSArray *dataArray = [[IpodEQ sharedIpodEQ] ipodEQS];
     for (int i = 0; i < [dataArray count]; ++i) {
         NSIndexPath *path = [NSIndexPath indexPathForRow:i inSection:0];
         IpodEQViewCell *cell = (IpodEQViewCell*)[self.tableView cellForRowAtIndexPath:path];
         if (i == indexPath.row) {
-            [self.dict setObject:[NSNumber numberWithInt:i] forKey:@"selected"];
+            [[IpodEQ sharedIpodEQ] selected:i];
             
             cell.choosedImageView.hidden = NO;
         } else {

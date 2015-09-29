@@ -11,6 +11,5 @@
 @interface IpodEQViewController : UIViewController <UITableViewDataSource, UITableViewDelegate>
 
 @property (strong, nonatomic) UITableView *tableView;
-@property (strong, nonatomic) NSMutableDictionary *dict;
 
 @end

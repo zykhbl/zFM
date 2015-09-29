@@ -32,6 +32,7 @@
 - (void)seek:(CGFloat)value;
 
 - (void)selectIpodEQPreset:(NSInteger)index;
+- (void)changeEQ:(int)index value:(CGFloat)v;
 
 @end
 

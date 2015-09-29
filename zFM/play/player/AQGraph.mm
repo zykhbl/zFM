@@ -12,6 +12,7 @@
 #import "CAComponentDescription.h"
 #import "CAXException.h"
 #import "AQRing.h"
+#import "CustomEQ.h"
 
 typedef struct {
     AudioStreamBasicDescription asbd;
@@ -154,6 +155,15 @@ static OSStatus renderNotification(void *inRefCon, AudioUnitRenderActionFlags *i
 	memset(self.mUserData->soundBuffer, 0, sizeof(self.mUserData->soundBuffer));
 }
 
+- (void)setasbd:(AudioStreamBasicDescription)asbd {
+    self.mClientFormat = asbd;
+    self.mOutputFormat = asbd;
+    
+    self.mUserData->soundBuffer[0].asbd = mClientFormat;
+    self.ring = [[AQRing alloc] init];
+    self.mUserData->soundBuffer[0].data = self.ring;
+}
+
 - (void)initializeAUGraph {
     NSLog(@"initializeAUGraph \n");
 	
@@ -197,13 +207,13 @@ static OSStatus renderNotification(void *inRefCon, AudioUnitRenderActionFlags *i
         XThrowIfError(AudioUnitSetProperty(self.mEQ, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Input, 0, &mOutputFormat, sizeof(self.mOutputFormat)), "AudioUnitSetProperty failed!");
         Float64 graphSampleRate = self.mOutputFormat.mSampleRate;
         XThrowIfError(AudioUnitSetProperty (self.mEQ, kAudioUnitProperty_SampleRate, kAudioUnitScope_Output, 0, &graphSampleRate, sizeof (graphSampleRate)), "AudioUnitSetProperty failed!");
-        NSArray *frequency = @[@32.0f , @64.0f, @125.0f, @250.0f, @500.0f, @1000.0f, @2000.0f, @4000.0f, @8000.0f, @16000.0f];
+        NSArray *frequency = [[CustomEQ sharedCustomEQ] eqFrequencies];
         NSMutableArray *eqFrequencies = [[NSMutableArray alloc] initWithArray:frequency];
         self.bands = [eqFrequencies count];
         
         XThrowIfError(AudioUnitSetProperty(self.mEQ, kAUNBandEQProperty_NumberOfBands, kAudioUnitScope_Global, 0, &bands, sizeof(self.bands)), "AudioUnitSetProperty failed!");
         for (NSUInteger i = 0; i < self.bands; i++) {
-            XThrowIfError(AudioUnitSetParameter(mEQ, kAUNBandEQParam_Frequency+i, kAudioUnitScope_Global, 0, (AudioUnitParameterValue)[[eqFrequencies objectAtIndex:i] floatValue], 0), "AudioUnitSetParameter failed!");
+            XThrowIfError(AudioUnitSetParameter(mEQ, kAUNBandEQParam_Frequency + i, kAudioUnitScope_Global, 0, (AudioUnitParameterValue)[[eqFrequencies objectAtIndex:i] floatValue], 0), "AudioUnitSetParameter failed!");
         }
         for (NSUInteger i = 0; i < self.bands; i++) {
             XThrowIfError(AudioUnitSetParameter(self.mEQ, kAUNBandEQParam_BypassBand + i, kAudioUnitScope_Global, 0, (AudioUnitParameterValue)0, 0), "AudioUnitSetParameter failed!");
@@ -225,17 +235,28 @@ static OSStatus renderNotification(void *inRefCon, AudioUnitRenderActionFlags *i
 	}
 }
 
-- (void)setasbd:(AudioStreamBasicDescription)asbd {
-    self.mClientFormat = asbd;
-    self.mOutputFormat = asbd;
-    
-    self.mUserData->soundBuffer[0].asbd = mClientFormat;
-    self.ring = [[AQRing alloc] init];
-    self.mUserData->soundBuffer[0].data = self.ring;
-}
-
 - (void)addBuf:(const void*)inInputData numberBytes:(UInt32)inNumberBytes {
     [self.mUserData->soundBuffer[0].data putData:inInputData numberBytes:inNumberBytes];
+}
+
+- (void)startAUGraph {
+    NSLog(@"PLAY \n");
+    
+	OSStatus result = AUGraphStart(self.mGraph);
+    if (result) { printf("AUGraphStart result %ld %08X %4.4s\n", result, (unsigned int)result, (char*)&result); return; }
+}
+
+- (void)stopAUGraph {
+	NSLog(@"STOP \n");
+    
+    Boolean isRunning = false;
+    OSStatus result = AUGraphIsRunning(self.mGraph, &isRunning);
+    if (result) { printf("AUGraphIsRunning result %ld %08X %4.4s\n", result, (unsigned int)result, (char*)&result); return; }
+    
+    if (isRunning) {
+        result = AUGraphStop(self.mGraph);
+        if (result) { printf("AUGraphStop result %ld %08X %4.4s\n", result, (unsigned int)result, (char*)&result); return; }
+    }
 }
 
 - (void)enableInput:(UInt32)inputNum isOn:(AudioUnitParameterValue)isONValue {
@@ -264,57 +285,10 @@ static OSStatus renderNotification(void *inRefCon, AudioUnitRenderActionFlags *i
     CFShow(aPreset->presetName);
 }
 
-- (void)changeTag:(int)tag value:(CGFloat)v {
-    AudioUnitParameterID parameterID = kAUNBandEQParam_Gain + tag;
+- (void)changeEQ:(int)index value:(CGFloat)v {
+    AudioUnitParameterID parameterID = kAUNBandEQParam_Gain + index;
     OSStatus result = AudioUnitSetParameter(mEQ, parameterID, kAudioUnitScope_Global, 0, v, 0);
     if (result) { printf("AudioUnitSetParameter result %ld %08X %4.4s\n", result, (unsigned int)result, (char*)&result); return; };
-}
-
-- (void)changeBaseFrequency:(CGFloat)v {
-    NSMutableArray *frequency = [NSMutableArray array];
-    for (int i = 0; i < 10; ++i) {
-        [frequency addObject:[NSNumber numberWithFloat:(v + i * 20.0)]];
-    }
-    NSMutableArray *eqFrequencies = [[NSMutableArray alloc] initWithArray:frequency];
-    self.bands = [eqFrequencies count];
-    
-    OSStatus result = AudioUnitSetProperty(self.mEQ, kAUNBandEQProperty_NumberOfBands, kAudioUnitScope_Global, 0, &bands, sizeof(self,bands));
-    if (result) { printf("set NumberOfBands Property1 result %ld %08X %4.4s\n", result, (unsigned int)result, (char*)&result); return; }
-    
-    for (NSUInteger i = 0; i < self.bands; i++) {
-        result = AudioUnitSetParameter(self.mEQ, kAUNBandEQParam_Frequency + i, kAudioUnitScope_Global, 0, (AudioUnitParameterValue)[[eqFrequencies objectAtIndex:i] floatValue], 0);
-        if (result) { printf("set NumberOfBands Property2 result %ld %08X %4.4s\n", result, (unsigned int)result, (char*)&result); return; }
-    }
-    
-    for (NSUInteger i = 0; i < self.bands; i++) {
-        AudioUnitParameterID parameterID = kAUNBandEQParam_Gain + i;
-        OSStatus result = AudioUnitSetParameter(self.mEQ, parameterID, kAudioUnitScope_Global, 0, -26.0, 0);
-        if (result) { printf("AudioUnitSetParameter result %ld %08X %4.4s\n", result, (unsigned int)result, (char*)&result); return; };
-    }
-    
-    Boolean outIsUpdated = YES;
-    result = AUGraphUpdate(self.mGraph, &outIsUpdated);
-    if (result) { printf("AUGraphUpdate result %ld %08X %4.4s\n", result, (unsigned int)result, (char*)&result); return; }
-}
-
-- (void)startAUGraph {
-    NSLog(@"PLAY \n");
-    
-	OSStatus result = AUGraphStart(self.mGraph);
-    if (result) { printf("AUGraphStart result %ld %08X %4.4s\n", result, (unsigned int)result, (char*)&result); return; }
-}
-
-- (void)stopAUGraph {
-	NSLog(@"STOP \n");
-
-    Boolean isRunning = false;
-    OSStatus result = AUGraphIsRunning(self.mGraph, &isRunning);
-    if (result) { printf("AUGraphIsRunning result %ld %08X %4.4s\n", result, (unsigned int)result, (char*)&result); return; }
-    
-    if (isRunning) {
-        result = AUGraphStop(self.mGraph);
-        if (result) { printf("AUGraphStop result %ld %08X %4.4s\n", result, (unsigned int)result, (char*)&result); return; }
-    }
 }
 
 @end

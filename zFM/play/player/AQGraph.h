@@ -18,18 +18,16 @@
 
 - (void)awakeFromNib;
 - (void)setasbd:(AudioStreamBasicDescription)asbd;
-- (void)addBuf:(const void*)inInputData numberBytes:(UInt32)inNumberBytes;
-
 - (void)initializeAUGraph;
+- (void)startAUGraph;
+- (void)stopAUGraph;
+
+- (void)addBuf:(const void*)inInputData numberBytes:(UInt32)inNumberBytes;
 
 - (void)enableInput:(UInt32)inputNum isOn:(AudioUnitParameterValue)isONValue;
 - (void)setInputVolume:(UInt32)inputNum value:(AudioUnitParameterValue)value;
 - (void)setOutputVolume:(AudioUnitParameterValue)value;
 - (void)selectIpodEQPreset:(NSInteger)index;
-- (void)changeTag:(int)tag value:(CGFloat)v;
-- (void)changeBaseFrequency:(CGFloat)v;
-
-- (void)startAUGraph;
-- (void)stopAUGraph;
+- (void)changeEQ:(int)index value:(CGFloat)v;
 
 @end

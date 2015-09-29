@@ -11,6 +11,8 @@
 #import "CAXException.h"
 #import "CAStreamBasicDescription.h"
 #import "AQGraph.h"
+#import "IpodEQ.h"
+#import "CustomEQ.h"
 
 #define kDefaultSize 1024 * 5
 
@@ -278,6 +280,12 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
             [self.graph setOutputVolume:1.0];
             
             [self.graph startAUGraph];
+            
+            [self.graph selectIpodEQPreset:[[IpodEQ sharedIpodEQ] selected]];
+            for (int i = 0; i < [[[CustomEQ sharedCustomEQ] eqFrequencies] count]; ++i) {
+                CGFloat eqValue = [[CustomEQ sharedCustomEQ] getEQValueInIndex:i];
+                [self.graph changeEQ:i value:eqValue];
+            }
         }
         
         self.afio->srcFileID = self.sourceFileID;

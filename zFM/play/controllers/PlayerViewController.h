@@ -11,6 +11,8 @@
 
 @interface PlayerViewController : UIViewController <AQPlayerDelegate>
 
+@property (nonatomic, assign) int songIndex;
+@property (nonatomic, strong) NSArray *songs;
 @property (nonatomic, strong) AQPlayer *player;
 @property (nonatomic, strong) NSTimer *timer;
 

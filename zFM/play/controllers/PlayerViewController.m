@@ -10,6 +10,8 @@
 
 @implementation PlayerViewController
 
+@synthesize songIndex;
+@synthesize songs;
 @synthesize player;
 @synthesize timer;
 @synthesize playBtn;
@@ -38,11 +40,9 @@
     if (self.player == nil || self.playOtherSong) {
         self.playOtherSong = NO;
         self.timerStop = NO;
-        NSString *urlString = @"http://mobileapi.5sing.kugou.com/song/transcoding?songid=12626585&songtype=fc&bitrate=128";
-//        NSString *urlString = @"http://mobileapi.5sing.kugou.com/song/transcoding?songid=12946453&songtype=fc&bitrate=128";
-//    NSString *urlString = @"http://mobileapi.5sing.kugou.com/song/transcoding?songid=2444839&songtype=yc&bitrate=128";
         self.player = [AQPlayer sharedAQPlayer];
         self.player.delegate = self;
+        NSString *urlString = [self.songs objectAtIndex:self.songIndex];
         [self.player play:urlString];
     } else {
         if (self.played) {
@@ -93,6 +93,9 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
+    self.songIndex = 0;
+    self.songs = [NSArray arrayWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"songs.plist" ofType:nil]];
     
     self.timeSlider = [[UISlider alloc] initWithFrame:CGRectMake(10.0, 10.0, 260.0, 30.0)];
     [self.view addSubview:self.timeSlider];
@@ -178,6 +181,7 @@
     if (self.currentTime + 2.0 >=  self.duration) {
         self.currentTime = self.duration = 0.0;
         self.playOtherSong = YES;
+        self.songIndex = (self.songIndex + 1) % [self.songs count];
         self.played = NO;
         self.timerStop = NO;
         self.longPressTaped = NO;

@@ -77,12 +77,14 @@
     self.contentLength = [response expectedContentLength];
     self.bytesReceived = 0;
     
-    self.downloadFilePath = [NSString stringWithFormat:@"%@/T1MHxLBCYT1R47IVrK.mp3", self.downloadDir];
+    NSString *fileName = [response suggestedFilename];
+    self.downloadFilePath = [NSString stringWithFormat:@"%@/%@", self.downloadDir, fileName];
     self.wfd = [self getWriteFileFD:self.downloadFilePath];
 }
 
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data {
     write(self.wfd, data.bytes, data.length);
+    
 
     self.bytesReceived += data.length;
     if (self.bytesReceived > self.contentLength * 0.01) {
@@ -99,6 +101,11 @@
     NSLog(@"=============connectionDidFinishLoading============= \n");
     
     [self signal:YES];
+    close(wfd);
+}
+
+- (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error {
+    NSLog(@"=============didFailWithError============= \n");
     close(wfd);
 }
 

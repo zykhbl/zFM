@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<array>
+	<string>http://sc.111ttt.com/up/mp3/240343/240BE30C842C0906F3457966053AC80E.mp3</string>
+	<string>http://sc.111ttt.com/up/mp3/145425/06DFF6949D56E3277C938DAFB7F02682.mp3</string>
+	<string>http://mobileapi.5sing.kugou.com/song/transcoding?songid=12626585&amp;songtype=fc&amp;bitrate=128</string>
+	<string>http://mobileapi.5sing.kugou.com/song/transcoding?songid=12946453&amp;songtype=fc&amp;bitrate=128</string>
+	<string>http://mobileapi.5sing.kugou.com/song/transcoding?songid=2444839&amp;songtype=yc&amp;bitrate=128</string>
+</array>
+</plist>

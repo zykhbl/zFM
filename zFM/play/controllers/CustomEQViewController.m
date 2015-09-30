@@ -13,7 +13,7 @@
 #define segmentedControlY 10.0
 #define segmentedControlH 24.0
 #define eqFrequencieCount 5
-#define mixEQ -12.0
+#define minEQ -12.0
 #define maxEQ 12.0
 
 @implementation CustomEQViewController
@@ -64,7 +64,7 @@
     if (self.segmentedControl.selectedSegmentIndex == 1) {
         index += eqFrequencieCount;
     }
-    CGFloat value = mixEQ + (maxEQ - mixEQ) * slider.value;
+    CGFloat value = minEQ + (maxEQ - minEQ) * slider.value;
     [[CustomEQ sharedCustomEQ] setEQValue:value inIndex:index];
     
     AQPlayer *player = [AQPlayer sharedAQPlayer];
@@ -94,7 +94,7 @@
         }
 
         CGFloat value = [[CustomEQ sharedCustomEQ] getEQValueInIndex:i + offset];
-        CGFloat per = (value - mixEQ) / (maxEQ - mixEQ);
+        CGFloat per = (value - minEQ) / (maxEQ - minEQ);
         [slider setValue:per animated:NO];
         
         x += spaceW;
@@ -115,9 +115,9 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    [self addLabel:CGRectMake(10.0, segmentedControlY + segmentedControlH + 20.0, 60.0, 30.0) text:@"-12.0mb"];
+    [self addLabel:CGRectMake(10.0, segmentedControlY + segmentedControlH + 20.0, 60.0, 30.0) text:[NSString stringWithFormat:@"%0.1fmb", maxEQ]];
     [self addLabel:CGRectMake(10.0, segmentedControlY + segmentedControlH + 160.0, 60.0, 30.0) text:@"0.0mb"];
-    [self addLabel:CGRectMake(10.0, segmentedControlY + segmentedControlH + 300.0, 60.0, 30.0) text:@"-12.0mb"];
+    [self addLabel:CGRectMake(10.0, segmentedControlY + segmentedControlH + 300.0, 60.0, 30.0) text:[NSString stringWithFormat:@"%0.1fmb", minEQ]];
     
     self.sliderArray = [[NSMutableArray alloc] initWithCapacity:eqFrequencieCount];
     self.labelArray = [[NSMutableArray alloc] initWithCapacity:eqFrequencieCount];

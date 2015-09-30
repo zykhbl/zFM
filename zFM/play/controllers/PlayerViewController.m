@@ -168,9 +168,11 @@
     }
 }
 
-- (void)AQPlayer:(AQPlayer*)player duration:(NSTimeInterval)d {
+- (void)AQPlayer:(AQPlayer*)player duration:(NSTimeInterval)d zeroCurrentTime:(BOOL)flag {
     self.duration = d;
-    self.currentTime = 0.0;
+    if (flag) {
+        self.currentTime = 0.0;
+    }
     
     [self performSelectorOnMainThread:@selector(timerFire) withObject:nil waitUntilDone:NO];
 }
@@ -185,7 +187,7 @@
         self.played = NO;
         self.timerStop = NO;
         self.longPressTaped = NO;
-        [self.player cancel];
+        [self.player clear];
         
         [self performSelectorOnMainThread:@selector(modifyStates) withObject:nil waitUntilDone:NO];
         [self performSelectorOnMainThread:@selector(chagePlayBtnState) withObject:nil waitUntilDone:NO];

@@ -24,7 +24,7 @@
 + (void)playForeground;
 + (id)sharedAQPlayer;
 
-- (void)cancel;
+- (void)clear;
 - (void)play:(NSString*)url;
 
 - (void)play;
@@ -38,7 +38,7 @@
 
 @protocol AQPlayerDelegate <NSObject>
 
-- (void)AQPlayer:(AQPlayer*)player duration:(NSTimeInterval)d;
+- (void)AQPlayer:(AQPlayer*)player duration:(NSTimeInterval)d zeroCurrentTime:(BOOL)flag;
 - (void)AQPlayer:(AQPlayer*)player timerStop:(BOOL)flag;
 
 @end

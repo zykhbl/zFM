@@ -31,6 +31,7 @@
         [MyTool makeDir:self.downloadDir];
         
         self.converted = NO;
+        self.wfd = -1;
     }
     
     return self;
@@ -83,8 +84,17 @@
 }
 
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data {
-    write(self.wfd, data.bytes, data.length);
-    
+    int offset = 0;
+    int n = data.length;
+    while (n > 0) {
+        int m = write(self.wfd, data.bytes + offset, n);
+        if (m > 0) {
+            n -= m;
+            offset += m;
+        } else {
+            NSLog(@"write error!!!!!!! \n");
+        }
+    }
 
     self.bytesReceived += data.length;
     if (self.bytesReceived > self.contentLength * 0.01) {
@@ -101,12 +111,17 @@
     NSLog(@"=============connectionDidFinishLoading============= \n");
     
     [self signal:YES];
-    close(wfd);
+    
+    if (self.wfd != -1) {
+        close(wfd);
+    }
 }
 
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error {
     NSLog(@"=============didFailWithError============= \n");
-    close(wfd);
+    if (self.wfd != -1) {
+        close(wfd);
+    }
 }
 
 @end

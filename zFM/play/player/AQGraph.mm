@@ -113,24 +113,24 @@ static OSStatus renderNotification(void *inRefCon, AudioUnitRenderActionFlags *i
     NSLog(@"++++++++++ AQGraph dealloc! ++++++++++ \n");
     
     if (self.mGraph) {
-        OSStatus error = AUGraphStop(self.mGraph);
-        error = AUGraphRemoveRenderNotify(self.mGraph, renderNotification, self.mUserData);
-        error = AUGraphClearConnections(self.mGraph);
+        AUGraphStop(self.mGraph);
+        AUGraphRemoveRenderNotify(self.mGraph, renderNotification, self.mUserData);
+        AUGraphClearConnections(self.mGraph);
         
         if (self.mixerNode) {
-            error = AUGraphRemoveNode(self.mGraph, self.mixerNode);
+            AUGraphRemoveNode(self.mGraph, self.mixerNode);
         }
         if (self.eqNode) {
-            error = AUGraphRemoveNode(self.mGraph, self.eqNode);
+            AUGraphRemoveNode(self.mGraph, self.eqNode);
         }
         if (self.ipodEQNode) {
-            error = AUGraphRemoveNode(self.mGraph, self.ipodEQNode);
+            AUGraphRemoveNode(self.mGraph, self.ipodEQNode);
         }
         if (self.outputNode) {
-            error = AUGraphRemoveNode(self.mGraph, self.outputNode);
+            AUGraphRemoveNode(self.mGraph, self.outputNode);
         }
         
-        error = AUGraphClose(self.mGraph);
+        AUGraphClose(self.mGraph);
     }
     
     if (self.mUserData != NULL) {

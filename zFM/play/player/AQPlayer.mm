@@ -32,7 +32,7 @@
     return _sharedObject;
 }
 
-- (void)cancel {
+- (void)clear {
     self.downloader = nil;
     [self.converter setStopRunloop:YES];
     [self.converter signal];
@@ -50,6 +50,7 @@
 
 - (void)play {
     [self.converter play];
+    [self.converter signal];
 }
 
 - (void)pause {
@@ -80,6 +81,7 @@
         if (self.converter == nil) {
             self.converter = [[AQConverter alloc] init];
             self.converter.delegate = self;
+            [self.converter setContentLength:self.downloader.contentLength];
         }
         [self.converter doConvertFile:filePath];
     });
@@ -91,12 +93,12 @@
 }
 
 //===========AQConverterDelegate===========
-- (void)AQConverter:(AQConverter*)converter audioDataOffset:(UInt64)dataOffset bitRate:(UInt32)bRate {
-    if (self.delegate && [self.delegate respondsToSelector:@selector(AQPlayer:duration:)]) {
+- (void)AQConverter:(AQConverter*)converter audioDataOffset:(UInt64)dataOffset bitRate:(UInt32)bRate zeroCurrentTime:(BOOL)flag {
+    if (self.delegate && [self.delegate respondsToSelector:@selector(AQPlayer:duration:zeroCurrentTime:)]) {
         self.audioDataOffset = dataOffset;
         self.bitRate = bRate;
         NSTimeInterval duration = (self.downloader.contentLength - self.audioDataOffset) * 8 / self.bitRate;
-        [self.delegate AQPlayer:self duration:duration];
+        [self.delegate AQPlayer:self duration:duration zeroCurrentTime:flag];
     }
 }
 

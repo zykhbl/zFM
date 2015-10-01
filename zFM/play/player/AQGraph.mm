@@ -144,6 +144,10 @@ static OSStatus renderNotification(void *inRefCon, AudioUnitRenderActionFlags *i
         
         free(self.mUserData);
     }
+    
+    if (self.mEQPresetsArray != NULL) {
+        CFRelease(self.mEQPresetsArray);
+    }
 }
 
 - (void)awakeFromNib {

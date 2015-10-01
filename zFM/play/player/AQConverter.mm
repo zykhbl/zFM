@@ -14,7 +14,7 @@
 #import "IpodEQ.h"
 #import "CustomEQ.h"
 
-#define kDefaultSize 1024 * 5
+#define kDefaultSize 1024 * 40
 
 static pthread_mutex_t mutex;
 static pthread_cond_t cond;
@@ -25,7 +25,6 @@ static off_t bytesCanRead;
 static BOOL stopRunloop;
 
 enum {
-    kMyAudioConverterErr_CannotResumeFromInterruptionError = 'CANT',
     eofErr = -39
 };
 
@@ -72,7 +71,7 @@ static OSStatus encoderDataProc(AudioConverterRef inAudioConverter, UInt32 *ioNu
     
     pthread_mutex_lock(&mutex);
     OSStatus error = AudioFileReadPackets(afio->srcFileID, false, &outNumBytes, afio->packetDescriptions, afio->srcFilePos, ioNumberDataPackets, afio->srcBuffer);
-    while ((error && eofErr != error) && !stopRunloop) {
+    while (error && !stopRunloop) {
         timerStop(YES);
         
         pthread_cond_wait(&cond, &mutex);
@@ -80,10 +79,7 @@ static OSStatus encoderDataProc(AudioConverterRef inAudioConverter, UInt32 *ioNu
     }
     pthread_mutex_unlock(&mutex);
     
-	if (eofErr == error) {
-        error = noErr;
-    }
-	if (error) { printf ("Input Proc Read error: %ld (%4.4s)\n", error, (char*)&error); return error; }
+	if (error) { printf ("Input Proc Read error: %d (%4.4s)\n", (int)error, (char*)&error); return error; }
     
     if (outNumBytes != 0 && *ioNumberDataPackets != 0) {
         afio->srcSizePerPacket = outNumBytes / *ioNumberDataPackets;

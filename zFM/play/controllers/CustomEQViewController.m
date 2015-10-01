@@ -60,7 +60,7 @@
 
 - (IBAction)changeEQ:(id)sender {
     UISlider *slider = (UISlider*)sender;
-    int index = slider.tag - 100;
+    int index = (int)slider.tag - 100;
     if (self.segmentedControl.selectedSegmentIndex == 1) {
         index += eqFrequencieCount;
     }

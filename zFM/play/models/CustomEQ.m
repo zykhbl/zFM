@@ -43,7 +43,7 @@
 }
 
 - (int)getEQFrequencieInIndex:(int)index {
-    return [[self.eqFrequencies objectAtIndex:index] integerValue];
+    return (int)[[self.eqFrequencies objectAtIndex:index] integerValue];
 }
 
 @end

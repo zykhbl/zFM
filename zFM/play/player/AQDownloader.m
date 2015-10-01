@@ -84,10 +84,10 @@
 }
 
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data {
-    int offset = 0;
-    int n = data.length;
+    long offset = 0;
+    long n = data.length;
     while (n > 0) {
-        int m = write(self.wfd, data.bytes + offset, n);
+        ssize_t m = write(self.wfd, data.bytes + offset, n);
         if (m > 0) {
             n -= m;
             offset += m;

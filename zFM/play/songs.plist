@@ -4,9 +4,9 @@
 <array>
 	<string>http://sc1.111ttt.com/2015/1/02/27/95272139340.mp3</string>
 	<string>http://sc.111ttt.com/up/mp3/136520/48E50CC2A14F95970F523BD0E2F3FF93.mp3</string>
-	<string>http://sc.111ttt.com/up/mp3/240343/240BE30C842C0906F3457966053AC80E.mp3</string>
 	<string>http://mobileapi.5sing.kugou.com/song/transcoding?songid=12626585&amp;songtype=fc&amp;bitrate=128</string>
 	<string>http://mobileapi.5sing.kugou.com/song/transcoding?songid=12946453&amp;songtype=fc&amp;bitrate=128</string>
 	<string>http://mobileapi.5sing.kugou.com/song/transcoding?songid=2444839&amp;songtype=yc&amp;bitrate=128</string>
+	<string>http://sc.111ttt.com/up/mp3/240343/240BE30C842C0906F3457966053AC80E.mp3</string>
 </array>
 </plist>

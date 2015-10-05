@@ -28,5 +28,6 @@
 
 - (void)AQDownloader:(AQDownloader*)downloader convert:(NSString*)filePath;
 - (void)AQDownloader:(AQDownloader*)downloader signal:(BOOL)flag;
+- (void)AQDownloader:(AQDownloader*)downloader fail:(BOOL)flag;
 
 @end

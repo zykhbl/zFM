@@ -232,7 +232,7 @@ static OSStatus renderNotification(void *inRefCon, AudioUnitRenderActionFlags *i
         CAShow(self.mGraph);
     } catch (CAXException e) {
 		char buf[256];
-		fprintf(stderr, "Error: %s (%s)\n", e.mOperation, e.FormatError(buf));
+		NSLog(@"Error: %s (%s)\n", e.mOperation, e.FormatError(buf));
         error = e.mError;
 	}
 }
@@ -245,7 +245,7 @@ static OSStatus renderNotification(void *inRefCon, AudioUnitRenderActionFlags *i
     NSLog(@"PLAY \n");
     
 	OSStatus result = AUGraphStart(self.mGraph);
-    if (result) { printf("AUGraphStart result %d %08X %4.4s\n", (int)result, (unsigned int)result, (char*)&result); return; }
+    if (result) { NSLog(@"AUGraphStart result %d %08X %4.4s\n", (int)result, (unsigned int)result, (char*)&result); return; }
 }
 
 - (void)stopAUGraph {
@@ -253,44 +253,44 @@ static OSStatus renderNotification(void *inRefCon, AudioUnitRenderActionFlags *i
     
     Boolean isRunning = false;
     OSStatus result = AUGraphIsRunning(self.mGraph, &isRunning);
-    if (result) { printf("AUGraphIsRunning result %d %08X %4.4s\n", (int)result, (unsigned int)result, (char*)&result); return; }
+    if (result) { NSLog(@"AUGraphIsRunning result %d %08X %4.4s\n", (int)result, (unsigned int)result, (char*)&result); return; }
     
     if (isRunning) {
         result = AUGraphStop(self.mGraph);
-        if (result) { printf("AUGraphStop result %d %08X %4.4s\n", (int)result, (unsigned int)result, (char*)&result); return; }
+        if (result) { NSLog(@"AUGraphStop result %d %08X %4.4s\n", (int)result, (unsigned int)result, (char*)&result); return; }
     }
 }
 
 - (void)enableInput:(UInt32)inputNum isOn:(AudioUnitParameterValue)isONValue {
-    printf("BUS %u isON %f\n", (unsigned int)inputNum, isONValue);
+    NSLog(@"BUS %u isON %f\n", (unsigned int)inputNum, isONValue);
          
     OSStatus result = AudioUnitSetParameter(self.mMixer, kMultiChannelMixerParam_Enable, kAudioUnitScope_Input, inputNum, isONValue, 0);
-    if (result) { printf("AudioUnitSetParameter kMultiChannelMixerParam_Enable result %d %08X %4.4s\n", (int)result, (unsigned int)result, (char*)&result); return; }
+    if (result) { NSLog(@"AudioUnitSetParameter kMultiChannelMixerParam_Enable result %d %08X %4.4s\n", (int)result, (unsigned int)result, (char*)&result); return; }
 }
 
 - (void)setInputVolume:(UInt32)inputNum value:(AudioUnitParameterValue)value {
 	OSStatus result = AudioUnitSetParameter(self.mMixer, kMultiChannelMixerParam_Volume, kAudioUnitScope_Input, inputNum, value, 0);
-    if (result) { printf("AudioUnitSetParameter kMultiChannelMixerParam_Volume Input result %d %08X %4.4s\n", (int)result, (unsigned int)result, (char*)&result); return; }
+    if (result) { NSLog(@"AudioUnitSetParameter kMultiChannelMixerParam_Volume Input result %d %08X %4.4s\n", (int)result, (unsigned int)result, (char*)&result); return; }
 }
 
 - (void)setOutputVolume:(AudioUnitParameterValue)value {
 	OSStatus result = AudioUnitSetParameter(self.mMixer, kMultiChannelMixerParam_Volume, kAudioUnitScope_Output, 0, value, 0);
-    if (result) { printf("AudioUnitSetParameter kMultiChannelMixerParam_Volume Output result %d %08X %4.4s\n", (int)result, (unsigned int)result, (char*)&result); return; }
+    if (result) { NSLog(@"AudioUnitSetParameter kMultiChannelMixerParam_Volume Output result %d %08X %4.4s\n", (int)result, (unsigned int)result, (char*)&result); return; }
 }
 
 - (void)selectIpodEQPreset:(NSInteger)index {
     AUPreset *aPreset = (AUPreset*)CFArrayGetValueAtIndex(self.mEQPresetsArray, index);
     OSStatus result = AudioUnitSetProperty(self.iPodEQ, kAudioUnitProperty_PresentPreset, kAudioUnitScope_Global, 0, aPreset, sizeof(AUPreset));
-    if (result) { printf("AudioUnitSetProperty result %d %08X %4.4s\n", (int)result, (unsigned int)result, (char*)&result); return; };
+    if (result) { NSLog(@"AudioUnitSetProperty result %d %08X %4.4s\n", (int)result, (unsigned int)result, (char*)&result); return; };
     
-    printf("SET EQ PRESET %ld ", (long)index);
+    NSLog(@"SET EQ PRESET %ld ", (long)index);
     CFShow(aPreset->presetName);
 }
 
 - (void)changeEQ:(int)index value:(CGFloat)v {
     AudioUnitParameterID parameterID = kAUNBandEQParam_Gain + index;
     OSStatus result = AudioUnitSetParameter(mEQ, parameterID, kAudioUnitScope_Global, 0, v, 0);
-    if (result) { printf("AudioUnitSetParameter result %d %08X %4.4s\n", (int)result, (unsigned int)result, (char*)&result); return; };
+    if (result) { NSLog(@"AudioUnitSetParameter result %d %08X %4.4s\n", (int)result, (unsigned int)result, (char*)&result); return; };
 }
 
 @end

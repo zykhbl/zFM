@@ -74,6 +74,10 @@
 }
 
 - (void)move:(UILongPressGestureRecognizer*)gestureRecognizer {
+    if (self.timerStop) {
+        return;
+    }
+    
     if ([gestureRecognizer state] == UIGestureRecognizerStateBegan) {
         self.longPressTaped = YES;
         self.beginTouchPoint = [gestureRecognizer locationInView:self.tapView];
@@ -191,6 +195,7 @@
         
         [self performSelectorOnMainThread:@selector(modifyStates) withObject:nil waitUntilDone:NO];
         [self performSelectorOnMainThread:@selector(chagePlayBtnState) withObject:nil waitUntilDone:NO];
+        [self performSelectorOnMainThread:@selector(play:) withObject:nil waitUntilDone:NO];
     }
 }
 

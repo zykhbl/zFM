@@ -82,14 +82,28 @@
             self.converter = [[AQConverter alloc] init];
             self.converter.delegate = self;
             [self.converter setContentLength:self.downloader.contentLength];
+            [self.converter setBytesCanRead:self.downloader.bytesReceived];
         }
         [self.converter doConvertFile:filePath];
     });
 }
 
 - (void)AQDownloader:(AQDownloader*)downloader signal:(BOOL)flag {
-    [self.converter setBytesCanRead:self.downloader.bytesReceived];
-    [self.converter signal];
+    if (self.converter != nil) {
+        [self.converter setBytesCanRead:self.downloader.bytesReceived];
+        [self.converter signal];
+    }
+}
+
+- (void)timerStop:(BOOL)flag {
+    if (self.delegate && [self.delegate respondsToSelector:@selector(AQPlayer:timerStop:)]) {
+        [self.delegate AQPlayer:self timerStop:flag];
+    }
+}
+
+- (void)AQDownloader:(AQDownloader*)downloader fail:(BOOL)flag {
+    [self timerStop:flag];
+    [self clear];
 }
 
 //===========AQConverterDelegate===========
@@ -103,9 +117,7 @@
 }
 
 - (void)AQConverter:(AQConverter*)converter timerStop:(BOOL)flag {
-    if (self.delegate && [self.delegate respondsToSelector:@selector(AQPlayer:timerStop:)]) {
-        [self.delegate AQPlayer:self timerStop:flag];
-    }
+    [self timerStop:flag];
 }
 
 @end

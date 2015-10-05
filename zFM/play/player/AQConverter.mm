@@ -79,7 +79,7 @@ static OSStatus encoderDataProc(AudioConverterRef inAudioConverter, UInt32 *ioNu
     }
     pthread_mutex_unlock(&mutex);
     
-	if (error) { printf ("Input Proc Read error: %d (%4.4s)\n", (int)error, (char*)&error); return error; }
+	if (error) { NSLog(@"Input Proc Read error: %d (%4.4s)\n", (int)error, (char*)&error); return error; }
     
     if (outNumBytes != 0 && *ioNumberDataPackets != 0) {
         afio->srcSizePerPacket = outNumBytes / *ioNumberDataPackets;
@@ -112,9 +112,9 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
 		error = AudioFileGetProperty(sourceFileID, kAudioFilePropertyMagicCookieData, &cookieSize, cookie);
         if (noErr == error) {
             error = AudioConverterSetProperty(converter, kAudioConverterDecompressionMagicCookie, cookieSize, cookie);
-            if (error) { printf("Could not Set kAudioConverterDecompressionMagicCookie on the Audio Converter!\n"); }
+            if (error) { NSLog(@"Could not Set kAudioConverterDecompressionMagicCookie on the Audio Converter!\n"); }
         } else {
-            printf("Could not Get kAudioFilePropertyMagicCookieData from source file!\n");
+            NSLog(@"Could not Get kAudioFilePropertyMagicCookieData from source file!\n");
         }
 		
 		delete [] cookie;
@@ -230,21 +230,17 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
     CAStreamBasicDescription srcFormat, dstFormat;
     
     self.afio = (AudioFileIOPtr)malloc(sizeof(AudioFileIO));
+    bzero(self.afio, sizeof(AudioFileIO));
     afioDelegate = self.delegate;
     
     try {
         CFURLRef sourceURL = CFURLCreateWithFileSystemPath(kCFAllocatorDefault, (CFStringRef)url, kCFURLPOSIXPathStyle, false);
-        
-        pthread_mutex_lock(&mutex);
         OSStatus error = AudioFileOpenURL(sourceURL, kAudioFileReadPermission, 0, &sourceFileID);
-        while (error && !stopRunloop) {
+        if (error) {
             timerStop(YES);
-            
-            pthread_cond_wait(&cond, &mutex);
-            error = AudioFileOpenURL(sourceURL, kAudioFileReadPermission, 0, &sourceFileID);
+            CFRelease(sourceURL);
+            return;
         }
-        pthread_mutex_unlock(&mutex);
-        
         CFRelease(sourceURL);
         
         UInt32 size = sizeof(srcFormat);
@@ -321,7 +317,7 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
             if (error) {
                 NSLog(@"AudioConverterFillComplexBuffer error: %d============== \n", (int)error);
                 if (kAudioConverterErr_HardwareInUse == error) {
-                    printf("Audio Converter returned kAudioConverterErr_HardwareInUse!\n");
+                    NSLog(@"Audio Converter returned kAudioConverterErr_HardwareInUse!\n");
                 } else {
                     XThrowIfError(error, "AudioConverterFillComplexBuffer error!");
                 }
@@ -340,7 +336,7 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
         }
     } catch (CAXException e) {
 		char buf[256];
-		fprintf(stderr, "Error: %s (%s)\n", e.mOperation, e.FormatError(buf));
+		NSLog(@"Error: %s (%s)\n", e.mOperation, e.FormatError(buf));
 	}
     
     if (self.again) {

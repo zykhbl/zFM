@@ -19,8 +19,17 @@
 @synthesize contentLength;
 @synthesize wfd;
 
+- (void)closeFile {
+    if (self.wfd != -1) {
+        close(self.wfd);
+        self.wfd = -1;
+    }
+}
+
 - (void)dealloc {
     NSLog(@"++++++++++ AQDownloader dealloc! ++++++++++ \n");
+    
+    [self closeFile];
 }
 
 - (id)init {
@@ -67,7 +76,7 @@
     int fd = fileno(sound);
     
     if (fd == -1) {
-        printf("write temp mp3 file error: %d = %s \n", errno, strerror(errno));
+        NSLog(@"write temp mp3 file error: %d = %s \n", errno, strerror(errno));
         exit(1);
     }
     
@@ -97,13 +106,11 @@
     }
 
     self.bytesReceived += data.length;
-    if (self.bytesReceived > self.contentLength * 0.01) {
-        if (!self.converted) {
-            self.converted = YES;
-            [self convert];
-        } else {
-            [self signal:NO];
-        }
+    if (!self.converted) {
+        self.converted = YES;
+        [self convert];
+    } else {
+        [self signal:NO];
     }
 }
 
@@ -111,17 +118,16 @@
     NSLog(@"=============connectionDidFinishLoading============= \n");
     
     [self signal:YES];
-    
-    if (self.wfd != -1) {
-        close(wfd);
-    }
+    [self closeFile];
 }
 
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error {
     NSLog(@"=============didFailWithError============= \n");
-    if (self.wfd != -1) {
-        close(wfd);
+    
+    if (self.delegate && [self.delegate respondsToSelector:@selector(AQDownloader:fail:)]) {
+        [self.delegate AQDownloader:self fail:YES];
     }
+    [self closeFile];
 }
 
 @end

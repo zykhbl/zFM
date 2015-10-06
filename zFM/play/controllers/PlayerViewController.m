@@ -74,24 +74,22 @@
 }
 
 - (void)move:(UILongPressGestureRecognizer*)gestureRecognizer {
-    if (self.timerStop) {
-        return;
-    }
-    
-    if ([gestureRecognizer state] == UIGestureRecognizerStateBegan) {
-        self.longPressTaped = YES;
-        self.beginTouchPoint = [gestureRecognizer locationInView:self.tapView];
-    } else if ([gestureRecognizer state] == UIGestureRecognizerStateChanged) {
-        [self handleMove:gestureRecognizer];
-    } else if ([gestureRecognizer state] == UIGestureRecognizerStateCancelled) {
-        self.longPressTaped = NO;
-    } else if ([gestureRecognizer state] == UIGestureRecognizerStateEnded) {
-        self.longPressTaped = NO;
-        [self handleMove:gestureRecognizer];
-        
-        CGFloat value = self.timeSlider.value;
-        self.currentTime = self.duration * value;
-        [self.player seek:value];
+    if (self.player.converter != nil) {
+        if ([gestureRecognizer state] == UIGestureRecognizerStateBegan) {
+            self.longPressTaped = YES;
+            self.beginTouchPoint = [gestureRecognizer locationInView:self.tapView];
+        } else if ([gestureRecognizer state] == UIGestureRecognizerStateChanged) {
+            [self handleMove:gestureRecognizer];
+        } else if ([gestureRecognizer state] == UIGestureRecognizerStateCancelled) {
+            self.longPressTaped = NO;
+        } else if ([gestureRecognizer state] == UIGestureRecognizerStateEnded) {
+            self.longPressTaped = NO;
+            [self handleMove:gestureRecognizer];
+            
+            CGFloat value = self.timeSlider.value;
+            self.currentTime = self.duration * value;
+            [self.player seek:value];
+        }
     }
 }
 
@@ -184,7 +182,7 @@
 - (void)AQPlayer:(AQPlayer*)player timerStop:(BOOL)flag {
     self.timerStop = flag;
     
-    if (self.currentTime + 2.0 >=  self.duration) {
+    if (self.currentTime >= self.duration) {
         self.currentTime = self.duration = 0.0;
         self.playOtherSong = YES;
         self.songIndex = (self.songIndex + 1) % [self.songs count];

@@ -35,7 +35,6 @@ typedef struct {
 	UInt32                       srcBufferSize;
 	CAStreamBasicDescription     srcFormat;
 	UInt32                       srcSizePerPacket;
-	UInt32                       numPacketsPerRead;
 	AudioStreamPacketDescription *packetDescriptions;
 } AudioFileIO, *AudioFileIOPtr;
 
@@ -285,12 +284,10 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
 		
         if (srcFormat.mBytesPerPacket == 0) {
             size = sizeof(self.afio->srcSizePerPacket);
-            XThrowIfError(AudioFileGetProperty(self.sourceFileID, kAudioFilePropertyPacketSizeUpperBound, &size, &self.afio->srcSizePerPacket), "AudioFileGetProperty kAudioFilePropertyMaximumPacketSize failed!");
-            self.afio->numPacketsPerRead = self.afio->srcBufferSize / self.afio->srcSizePerPacket;
-            self.afio->packetDescriptions = new AudioStreamPacketDescription [self.afio->numPacketsPerRead];
+            XThrowIfError(AudioFileGetProperty(self.sourceFileID, kAudioFilePropertyMaximumPacketSize, &size, &self.afio->srcSizePerPacket), "AudioFileGetProperty kAudioFilePropertyMaximumPacketSize failed!");
+            self.afio->packetDescriptions = new AudioStreamPacketDescription[self.afio->srcBufferSize / self.afio->srcSizePerPacket];
         } else {
             self.afio->srcSizePerPacket = srcFormat.mBytesPerPacket;
-            self.afio->numPacketsPerRead = self.afio->srcBufferSize / self.afio->srcSizePerPacket;
             self.afio->packetDescriptions = NULL;
         }
         
@@ -315,7 +312,7 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
             UInt32 ioOutputDataPackets = numOutputPackets;
             error = AudioConverterFillComplexBuffer(self.converter, encoderDataProc, self.afio, &ioOutputDataPackets, &fillBufList, self.outputPacketDescriptions);
             if (error) {
-                NSLog(@"AudioConverterFillComplexBuffer error: %d============== \n", (int)error);
+                NSLog(@"AudioConverterFillComplexBuffer error: %d \n", (int)error);
                 if (kAudioConverterErr_HardwareInUse == error) {
                     NSLog(@"Audio Converter returned kAudioConverterErr_HardwareInUse!\n");
                 } else {

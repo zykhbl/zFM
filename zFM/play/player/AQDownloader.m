@@ -106,11 +106,13 @@
     }
 
     self.bytesReceived += data.length;
-    if (!self.converted) {
-        self.converted = YES;
-        [self convert];
-    } else {
-        [self signal:NO];
+    if (self.bytesReceived > self.contentLength * 0.01) {
+        if (!self.converted) {
+            self.converted = YES;
+            [self convert];
+        } else {
+            [self signal:NO];
+        }
     }
 }
 

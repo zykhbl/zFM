@@ -102,8 +102,10 @@
 }
 
 - (void)AQDownloader:(AQDownloader*)downloader fail:(BOOL)flag {
+    if (self.delegate && [self.delegate respondsToSelector:@selector(AQPlayer:duration:zeroCurrentTime:)]) {
+        [self.delegate AQPlayer:self duration:0.0 zeroCurrentTime:flag];
+    }
     [self timerStop:flag];
-    [self clear];
 }
 
 //===========AQConverterDelegate===========

@@ -18,8 +18,6 @@
 @property (nonatomic, assign) id<AQPlayerDelegate> delegate;
 @property (nonatomic, strong) AQDownloader *downloader;
 @property (nonatomic, strong) AQConverter *converter;
-@property (nonatomic, assign) UInt64 audioDataOffset;
-@property (nonatomic, assign) UInt32 bitRate;
 
 + (void)playForeground;
 + (id)sharedAQPlayer;
@@ -29,7 +27,7 @@
 
 - (void)play;
 - (void)pause;
-- (void)seek:(CGFloat)value;
+- (void)seek:(NSTimeInterval)seekToTime;
 
 - (void)selectIpodEQPreset:(NSInteger)index;
 - (void)changeEQ:(int)index value:(CGFloat)v;

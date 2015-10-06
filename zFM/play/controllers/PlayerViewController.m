@@ -88,7 +88,7 @@
             
             CGFloat value = self.timeSlider.value;
             self.currentTime = self.duration * value;
-            [self.player seek:value];
+            [self.player seek:self.currentTime];
         }
     }
 }

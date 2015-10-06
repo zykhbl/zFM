@@ -14,8 +14,6 @@
 @synthesize delegate;
 @synthesize downloader;
 @synthesize converter;
-@synthesize audioDataOffset;
-@synthesize bitRate;
 
 + (void)playForeground {
     AVAudioSession *session = [AVAudioSession sharedInstance];
@@ -57,10 +55,9 @@
     [self.converter pause];
 }
 
-- (void)seek:(CGFloat)value {
-    off_t offset = self.audioDataOffset + (self.downloader.contentLength - self.audioDataOffset) * value;
+- (void)seek:(NSTimeInterval)seekToTime {
     [self.converter setBytesCanRead:self.downloader.bytesReceived];
-    [self.converter seek:offset];
+    [self.converter seek:seekToTime];
 }
 
 - (void)selectIpodEQPreset:(NSInteger)index {
@@ -109,11 +106,8 @@
 }
 
 //===========AQConverterDelegate===========
-- (void)AQConverter:(AQConverter*)converter audioDataOffset:(UInt64)dataOffset bitRate:(UInt32)bRate zeroCurrentTime:(BOOL)flag {
+- (void)AQConverter:(AQConverter*)converter duration:(NSTimeInterval)duration zeroCurrentTime:(BOOL)flag {
     if (self.delegate && [self.delegate respondsToSelector:@selector(AQPlayer:duration:zeroCurrentTime:)]) {
-        self.audioDataOffset = dataOffset;
-        self.bitRate = bRate;
-        NSTimeInterval duration = (self.downloader.contentLength - self.audioDataOffset) * 8 / self.bitRate;
         [self.delegate AQPlayer:self duration:duration zeroCurrentTime:flag];
     }
 }

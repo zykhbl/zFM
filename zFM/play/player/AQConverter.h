@@ -20,7 +20,7 @@
 
 - (void)play;
 - (void)pause;
-- (void)seek:(off_t)offset;
+- (void)seek:(NSTimeInterval)seekToTime;
 
 - (void)setContentLength:(off_t)len;
 - (void)setBytesCanRead:(off_t)bytes;
@@ -33,7 +33,7 @@
 
 @protocol AQConverterDelegate <NSObject>
 
-- (void)AQConverter:(AQConverter*)converter audioDataOffset:(UInt64)dataOffset bitRate:(UInt32)bRate zeroCurrentTime:(BOOL)flag;
+- (void)AQConverter:(AQConverter*)converter duration:(NSTimeInterval)duration zeroCurrentTime:(BOOL)flag;
 - (void)AQConverter:(AQConverter*)converter timerStop:(BOOL)flag;
 
 @end

@@ -19,7 +19,7 @@
 - (void)signal;
 
 - (void)play;
-- (void)pause;
+- (void)stop;
 - (void)seek:(NSTimeInterval)seekToTime;
 
 - (void)setContentLength:(off_t)len;
@@ -35,5 +35,6 @@
 
 - (void)AQConverter:(AQConverter*)converter duration:(NSTimeInterval)duration zeroCurrentTime:(BOOL)flag;
 - (void)AQConverter:(AQConverter*)converter timerStop:(BOOL)flag;
+- (void)AQConverter:(AQConverter*)converter playNext:(BOOL)flag;
 
 @end

@@ -10,17 +10,13 @@
 
 @protocol AQDownloaderDelegate;
 
-@interface AQDownloader : NSObject
+@interface AQDownloader : NSOperation
 
 @property (nonatomic, weak) id<AQDownloaderDelegate> delegate;
-@property (nonatomic, strong) NSString *downloadDir;
-@property (nonatomic, strong) NSString *downloadFilePath;
-@property (nonatomic, assign) BOOL converted;
+@property (nonatomic, strong) NSString *url;
+@property (nonatomic, strong) NSURLConnection *conn;
 @property (nonatomic, assign) off_t contentLength;
 @property (nonatomic, assign) int bytesReceived;
-@property (nonatomic, assign) int wfd;
-
-- (void)download:(NSString*)url;
 
 @end
 
@@ -29,5 +25,6 @@
 - (void)AQDownloader:(AQDownloader*)downloader convert:(NSString*)filePath;
 - (void)AQDownloader:(AQDownloader*)downloader signal:(BOOL)flag;
 - (void)AQDownloader:(AQDownloader*)downloader fail:(BOOL)flag;
+- (void)AQDownloader:(AQDownloader*)downloader playNext:(BOOL)flag;
 
 @end

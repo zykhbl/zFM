@@ -31,6 +31,8 @@
 }
 
 - (void)clear {
+    [self.downloader.conn cancel];
+    [self.downloader cancel];
     self.downloader = nil;
     [self.converter setStopRunloop:YES];
     [self.converter signal];
@@ -41,9 +43,9 @@
     if (self.downloader == nil) {
         self.downloader = [[AQDownloader alloc] init];
         self.downloader.delegate = self;
+        self.downloader.url = url;
+        [self.downloader start];
     }
-    
-    [self.downloader download:url];
 }
 
 - (void)play {
@@ -51,8 +53,8 @@
     [self.converter signal];
 }
 
-- (void)pause {
-    [self.converter pause];
+- (void)stop {
+    [self.converter stop];
 }
 
 - (void)seek:(NSTimeInterval)seekToTime {
@@ -105,6 +107,12 @@
     [self timerStop:flag];
 }
 
+- (void)AQDownloader:(AQDownloader*)downloader playNext:(BOOL)flag {
+    if (self.delegate && [self.delegate respondsToSelector:@selector(AQPlayer:playNext:)]) {
+        [self.delegate AQPlayer:self playNext:flag];
+    }
+}
+
 //===========AQConverterDelegate===========
 - (void)AQConverter:(AQConverter*)converter duration:(NSTimeInterval)duration zeroCurrentTime:(BOOL)flag {
     if (self.delegate && [self.delegate respondsToSelector:@selector(AQPlayer:duration:zeroCurrentTime:)]) {
@@ -114,6 +122,12 @@
 
 - (void)AQConverter:(AQConverter*)converter timerStop:(BOOL)flag {
     [self timerStop:flag];
+}
+
+- (void)AQConverter:(AQConverter*)converter playNext:(BOOL)flag {
+    if (self.delegate && [self.delegate respondsToSelector:@selector(AQPlayer:playNext:)]) {
+        [self.delegate AQPlayer:self playNext:flag];
+    }
 }
 
 @end

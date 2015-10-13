@@ -21,34 +21,34 @@
 @synthesize duration;
 @synthesize currentTime;
 @synthesize playOtherSong;
-@synthesize played;
+@synthesize playState;
 @synthesize timerStop;
 @synthesize longPressTaped;
 @synthesize beginTouchPoint;
 
 - (void)chagePlayBtnState {
-    if (self.played) {
-        [self.playBtn setImage:[UIImage imageNamed:@"pause.png"] forState:UIControlStateNormal];
-    } else {
+    if (self.playState == STOP) {
         [self.playBtn setImage:[UIImage imageNamed:@"play.png"] forState:UIControlStateNormal];
+    } else {
+        [self.playBtn setImage:[UIImage imageNamed:@"pause.png"] forState:UIControlStateNormal];
     }
 }
 
-- (IBAction)play:(id)sender {
-    self.played = !self.played;
-    
+- (IBAction)play {
     if (self.player == nil || self.playOtherSong) {
+        self.playState = PAUSE;
         self.playOtherSong = NO;
-        self.timerStop = NO;
         self.player = [AQPlayer sharedAQPlayer];
         self.player.delegate = self;
         NSString *urlString = [self.songs objectAtIndex:self.songIndex];
         [self.player play:urlString];
     } else {
-        if (self.played) {
+        if (self.playState == STOP) {
+            self.playState = PAUSE;
             [player play];
         } else {
-            [player pause];
+            self.playState = STOP;
+            [player stop];
         }
     }
     
@@ -119,12 +119,12 @@
     self.playBtn = [UIButton buttonWithType:UIButtonTypeCustom];
     self.playBtn.frame = CGRectMake((320.0 - 50.0) * 0.5, 45.0, 50.0, 50.0);
     [self.playBtn setImage:[UIImage imageNamed:@"play.png"] forState:UIControlStateNormal];
-    [self.playBtn addTarget:self action:@selector(play:) forControlEvents:UIControlEventTouchUpInside];
+    [self.playBtn addTarget:self action:@selector(play) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:playBtn];
     
     self.playOtherSong = YES;
-    self.played = NO;
-    self.timerStop = NO;
+    self.playState = STOP;
+    self.timerStop = YES;
     self.longPressTaped = NO;
 }
 
@@ -152,20 +152,42 @@
     }
 }
 
+- (void)playNext {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.currentTime = -1.1;
+        self.duration = 0.0;
+        self.playOtherSong = YES;
+        self.songIndex = (self.songIndex + 1) % [self.songs count];
+        self.playState = STOP;
+        self.timerStop = YES;
+        self.longPressTaped = NO;
+        [self.player clear];
+        NSLog(@"=========== songIndex: %d \n", self.songIndex);
+        
+        [self modifyStates];
+        [self chagePlayBtnState];
+        [self play];
+    });
+}
+
 - (void)timerFire {
-    if (self.played) {
-        if (self.timerStop) {
-            return;
-        }
-        
-        if (self.timer == nil) {
-            self.timer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(timerFire) userInfo:nil repeats:YES];
+    if (self.playState == PLAYING) {
+        if (self.currentTime >= self.duration) {
+            [self playNext];
         } else {
-            self.currentTime += 1.0;
-        }
-        
-        if (self.currentTime < self.duration) {
-            [self performSelectorOnMainThread:@selector(modifyStates) withObject:nil waitUntilDone:NO];
+            if (self.timerStop) {
+                return;
+            }
+            
+            if (self.timer == nil) {
+                self.timer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(timerFire) userInfo:nil repeats:YES];
+            } else {
+                self.currentTime += 1.0;
+            }
+            
+            if (self.currentTime < self.duration) {
+                [self performSelectorOnMainThread:@selector(modifyStates) withObject:nil waitUntilDone:NO];
+            }
         }
     }
 }
@@ -176,25 +198,18 @@
         self.currentTime = 0.0;
     }
     
+    self.playState = PLAYING;
+    self.timerStop = NO;
     [self performSelectorOnMainThread:@selector(timerFire) withObject:nil waitUntilDone:NO];
 }
 
 - (void)AQPlayer:(AQPlayer*)player timerStop:(BOOL)flag {
     self.timerStop = flag;
-    
-    if (self.currentTime >= self.duration) {
-        self.currentTime = self.duration = 0.0;
-        self.playOtherSong = YES;
-        self.songIndex = (self.songIndex + 1) % [self.songs count];
-        self.played = NO;
-        self.timerStop = NO;
-        self.longPressTaped = NO;
-        [self.player clear];
-        
-        [self performSelectorOnMainThread:@selector(modifyStates) withObject:nil waitUntilDone:NO];
-        [self performSelectorOnMainThread:@selector(chagePlayBtnState) withObject:nil waitUntilDone:NO];
-        [self performSelectorOnMainThread:@selector(play:) withObject:nil waitUntilDone:NO];
-    }
+    self.playState = PLAYING;
+}
+
+- (void)AQPlayer:(AQPlayer*)player playNext:(BOOL)flag {
+    [self playNext];
 }
 
 @end

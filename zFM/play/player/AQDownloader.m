@@ -9,20 +9,55 @@
 #import "AQDownloader.h"
 #import "MyTool.h"
 
+@interface AQDownloader ()
+
+@property (nonatomic, strong) NSString *downloadDir;
+@property (nonatomic, strong) NSString *downloadFilePath;
+@property (nonatomic, strong) NSSet *runLoopModes;
+@property (nonatomic, assign) BOOL converted;
+@property (nonatomic, strong) NSFileHandle *file;
+
+@end
+
 @implementation AQDownloader
 
 @synthesize delegate;
-@synthesize downloadDir;
-@synthesize downloadFilePath;
-@synthesize converted;
+@synthesize url;
+@synthesize conn;
 @synthesize bytesReceived;
 @synthesize contentLength;
-@synthesize wfd;
+
+@synthesize downloadDir;
+@synthesize downloadFilePath;
+@synthesize runLoopModes;
+@synthesize converted;
+@synthesize file;
+
++ (void)networkRequestThreadEntryPoint:(id)__unused object {
+    @autoreleasepool {
+        [[NSThread currentThread] setName:@"AQDownloaderNetworking"];
+        
+        NSRunLoop *runLoop = [NSRunLoop currentRunLoop];
+        [runLoop addPort:[NSMachPort port] forMode:NSDefaultRunLoopMode];
+        [runLoop run];
+    }
+}
+
++ (NSThread *)networkRequestThread {
+    static NSThread *_networkRequestThread = nil;
+    static dispatch_once_t oncePredicate;
+    dispatch_once(&oncePredicate, ^{
+        _networkRequestThread = [[NSThread alloc] initWithTarget:self selector:@selector(networkRequestThreadEntryPoint:) object:nil];
+        [_networkRequestThread start];
+    });
+    
+    return _networkRequestThread;
+}
 
 - (void)closeFile {
-    if (self.wfd != -1) {
-        close(self.wfd);
-        self.wfd = -1;
+    if (self.file) {
+        [self.file closeFile];
+        self.file = nil;
     }
 }
 
@@ -39,8 +74,8 @@
         self.downloadDir = [MyTool makeTmpFilePath:@"audio"];
         [MyTool makeDir:self.downloadDir];
         
+        self.runLoopModes = [NSSet setWithObject:NSRunLoopCommonModes];
         self.converted = NO;
-        self.wfd = -1;
     }
     
     return self;
@@ -58,29 +93,27 @@
     }
 }
 
-- (void)downloadThread:(NSString*)url {
-    NSURL *URL = [NSURL URLWithString:url];
+- (void)start {
+    [self performSelector:@selector(operationDidStart) onThread:[[self class] networkRequestThread] withObject:nil waitUntilDone:NO modes:[self.runLoopModes allObjects]];
+}
+
+- (void)operationDidStart {
+    NSURL *URL = [NSURL URLWithString:self.url];
     NSURLRequest *request = [NSURLRequest requestWithURL:URL];
-    NSURLConnection *conn = [[NSURLConnection alloc] initWithRequest:request delegate:self];
-    [conn start];
-}
-
-- (void)download:(NSString*)url {
-    [self downloadThread:url];
-}
-
-- (int)getWriteFileFD:(NSString*)filename {
-    const char *filepath = [filename cStringUsingEncoding:NSUTF8StringEncoding];
+    self.conn = [[NSURLConnection alloc] initWithRequest:request delegate:self startImmediately:NO];
     
-    FILE *sound = fopen(filepath, "wb");
-    int fd = fileno(sound);
-    
-    if (fd == -1) {
-        NSLog(@"write temp mp3 file error: %d = %s \n", errno, strerror(errno));
-        exit(1);
+    NSRunLoop *runLoop = [NSRunLoop currentRunLoop];
+    for (NSString *runLoopMode in self.runLoopModes) {
+        [self.conn scheduleInRunLoop:runLoop forMode:runLoopMode];
     }
     
-    return fd;
+    [self.conn start];
+}
+
+- (void)playNext {
+    if (self.delegate && [self.delegate respondsToSelector:@selector(AQDownloader:playNext:)]) {
+        [self.delegate AQDownloader:self playNext:YES];
+    }
 }
 
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response {
@@ -89,47 +122,49 @@
     
     NSString *fileName = [response suggestedFilename];
     self.downloadFilePath = [NSString stringWithFormat:@"%@/%@", self.downloadDir, fileName];
-    self.wfd = [self getWriteFileFD:self.downloadFilePath];
+    
+    BOOL sucess  = [[NSFileManager defaultManager] createFileAtPath:self.downloadFilePath contents:nil attributes:nil];
+    if (!sucess) {
+        NSLog(@"============ createFileAtPath error! \n");
+        [self playNext];
+    }
+    self.file = [NSFileHandle fileHandleForWritingAtPath:self.downloadFilePath];
 }
 
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data {
-    long offset = 0;
-    long n = data.length;
-    while (n > 0) {
-        ssize_t m = write(self.wfd, data.bytes + offset, n);
-        if (m > 0) {
-            n -= m;
-            offset += m;
-        } else {
-            NSLog(@"write error!!!!!!! \n");
-        }
-    }
+    [self.file writeData:data];
 
     self.bytesReceived += data.length;
-    if (self.bytesReceived > self.contentLength * 0.01) {
-        if (!self.converted) {
-            self.converted = YES;
-            [self convert];
-        } else {
-            [self signal:NO];
-        }
+    if (!self.converted) {
+        self.converted = YES;
+        [self convert];
+    } else {
+        [self signal:NO];
     }
 }
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection {
     NSLog(@"=============connectionDidFinishLoading============= \n");
     
-    [self signal:YES];
-    [self closeFile];
+    if (self.converted) {
+        [self signal:YES];
+        [self closeFile];
+    } else {
+        [self playNext];
+    }
 }
 
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error {
     NSLog(@"=============didFailWithError============= \n");
     
-    if (self.delegate && [self.delegate respondsToSelector:@selector(AQDownloader:fail:)]) {
-        [self.delegate AQDownloader:self fail:YES];
+    if (self.converted) {
+        if (self.delegate && [self.delegate respondsToSelector:@selector(AQDownloader:fail:)]) {
+            [self.delegate AQDownloader:self fail:YES];
+        }
+        [self closeFile];
+    } else {
+        [self playNext];
     }
-    [self closeFile];
 }
 
 @end

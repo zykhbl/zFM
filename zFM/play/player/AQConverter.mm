@@ -61,7 +61,6 @@ static OSStatus encoderDataProc(AudioConverterRef inAudioConverter, UInt32 *ioNu
     while (bytesOffset > bytesCanRead && !stopRunloop) {
         if (bytesCanRead < contentLength) {
             timerStop(YES);
-            
             pthread_cond_wait(&cond, &mutex);
         } else {
             break;
@@ -70,17 +69,7 @@ static OSStatus encoderDataProc(AudioConverterRef inAudioConverter, UInt32 *ioNu
     pthread_mutex_unlock(&mutex);
     
 	UInt32 outNumBytes;
-    
-    pthread_mutex_lock(&mutex);
     OSStatus error = AudioFileReadPackets(afio->srcFileID, false, &outNumBytes, afio->packetDescriptions, afio->srcFilePos, ioNumberDataPackets, afio->srcBuffer);
-    while (error && !stopRunloop) {
-        timerStop(YES);
-        
-        pthread_cond_wait(&cond, &mutex);
-        error = AudioFileReadPackets(afio->srcFileID, false, &outNumBytes, afio->packetDescriptions, afio->srcFilePos, ioNumberDataPackets, afio->srcBuffer);
-    }
-    pthread_mutex_unlock(&mutex);
-    
 	if (error) { NSLog(@"Input Proc Read error: %d (%4.4s)\n", (int)error, (char*)&error); return error; }
 	
     bytesOffset += outNumBytes;
@@ -122,6 +111,7 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
 
 @interface AQConverter ()
 
+@property (nonatomic, assign) CFURLRef sourceURL;
 @property (nonatomic, assign) AudioConverterRef converter;
 @property (nonatomic, assign) AudioFileID sourceFileID;
 @property (nonatomic, assign) AudioFileIOPtr afio;
@@ -136,6 +126,7 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
 
 @synthesize delegate;
 
+@synthesize sourceURL;
 @synthesize converter;
 @synthesize sourceFileID;
 @synthesize afio;
@@ -144,6 +135,11 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
 @synthesize again;
 
 - (void)clear {
+    if (self.sourceURL) {
+        CFRelease(self.sourceURL);
+        self.sourceURL = NULL;
+    }
+    
     if (self.converter) {
         AudioConverterDispose(self.converter);
     }
@@ -190,7 +186,10 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
         pthread_cond_init(&cond, NULL);
         
         afioDelegate = nil;
+        contentLength = bytesCanRead = bytesOffset = 0;
         stopRunloop = NO;
+        
+        self.sourceURL = NULL;
         self.sourceFileID = 0;
         self.converter = 0;
         self.outputBuffer = NULL;
@@ -233,14 +232,27 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
     afioDelegate = self.delegate;
     
     try {
-        CFURLRef sourceURL = CFURLCreateWithFileSystemPath(kCFAllocatorDefault, (CFStringRef)url, kCFURLPOSIXPathStyle, false);
-        OSStatus error = AudioFileOpenURL(sourceURL, kAudioFileReadPermission, 0, &sourceFileID);
-        if (error) {
-            timerStop(YES);
-            CFRelease(sourceURL);
-            return;
+        if (self.sourceURL == NULL) {
+            self.sourceURL = CFURLCreateWithFileSystemPath(kCFAllocatorDefault, (CFStringRef)url, kCFURLPOSIXPathStyle, false);
         }
-        CFRelease(sourceURL);
+        
+        pthread_mutex_lock(&mutex);
+        OSStatus error = AudioFileOpenURL(sourceURL, kAudioFileReadPermission, 0, &sourceFileID);
+        while (error && !stopRunloop) {
+            NSLog(@"=========== AudioFileOpenURL \n");
+            if (bytesCanRead > contentLength * 0.01) {
+                pthread_mutex_unlock(&mutex);
+                if (self.delegate && [self.delegate respondsToSelector:@selector(AQConverter:playNext:)]) {
+                    [self.delegate AQConverter:self playNext:YES];
+                }
+                return;
+            }
+            
+            timerStop(YES);
+            pthread_cond_wait(&cond, &mutex);
+            error = AudioFileOpenURL(sourceURL, kAudioFileReadPermission, 0, &sourceFileID);
+        }
+        pthread_mutex_unlock(&mutex);
         
         UInt32 size = sizeof(srcFormat);
         XThrowIfError(AudioFileGetProperty(self.sourceFileID, kAudioFilePropertyDataFormat, &size, &srcFormat), "couldn't get source data format");
@@ -356,7 +368,7 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
     [self.graph startAUGraph];
 }
 
-- (void)pause {
+- (void)stop {
     [self.graph stopAUGraph];
 }
 

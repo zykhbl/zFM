@@ -9,6 +9,13 @@
 #import <UIKit/UIKit.h>
 #import "AQPlayer.h"
 
+typedef enum {
+	STOP,
+	PAUSE,
+	PLAYING
+} PlayState;
+
+
 @interface PlayerViewController : UIViewController <AQPlayerDelegate>
 
 @property (nonatomic, assign) int songIndex;
@@ -24,7 +31,7 @@
 @property (nonatomic, assign) NSTimeInterval duration;
 @property (nonatomic, assign) NSTimeInterval currentTime;
 @property (nonatomic, assign) BOOL playOtherSong;
-@property (nonatomic, assign) BOOL played;
+@property (nonatomic, assign) PlayState playState;
 @property (nonatomic, assign) BOOL timerStop;
 @property (nonatomic, assign) BOOL longPressTaped;
 @property (nonatomic, assign) CGPoint beginTouchPoint;

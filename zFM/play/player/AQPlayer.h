@@ -26,7 +26,7 @@
 - (void)play:(NSString*)url;
 
 - (void)play;
-- (void)pause;
+- (void)stop;
 - (void)seek:(NSTimeInterval)seekToTime;
 
 - (void)selectIpodEQPreset:(NSInteger)index;
@@ -38,5 +38,6 @@
 
 - (void)AQPlayer:(AQPlayer*)player duration:(NSTimeInterval)d zeroCurrentTime:(BOOL)flag;
 - (void)AQPlayer:(AQPlayer*)player timerStop:(BOOL)flag;
+- (void)AQPlayer:(AQPlayer*)player playNext:(BOOL)flag;
 
 @end

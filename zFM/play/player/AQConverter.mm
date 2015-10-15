@@ -25,10 +25,6 @@ static off_t bytesCanRead;
 static off_t bytesOffset;
 static BOOL stopRunloop;
 
-enum {
-    eofErr = -39
-};
-
 typedef struct {
 	AudioFileID                  srcFileID;
 	SInt64                       srcFilePos;
@@ -58,7 +54,7 @@ static OSStatus encoderDataProc(AudioConverterRef inAudioConverter, UInt32 *ioNu
     }
     
     pthread_mutex_lock(&mutex);
-    while (bytesOffset > bytesCanRead && !stopRunloop) {
+    while ((bytesOffset + afio->srcBufferSize) > bytesCanRead && !stopRunloop) {
         if (bytesCanRead < contentLength) {
             timerStop(YES);
             pthread_cond_wait(&cond, &mutex);
@@ -259,6 +255,9 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
 
         size = sizeof(self.afio->audioDataOffset);
         XThrowIfError(AudioFileGetProperty(self.sourceFileID, kAudioFilePropertyDataOffset, &size, &self.afio->audioDataOffset), "couldn't get kAudioFilePropertyDataOffset");
+        if (bytesOffset == 0) {
+            bytesOffset = self.afio->audioDataOffset;
+        }
         
         size = sizeof(self.afio->bitRate);
         XThrowIfError(AudioFileGetProperty(self.sourceFileID, kAudioFilePropertyBitRate, &size, &self.afio->bitRate), "couldn't get kAudioFilePropertyBitRate");

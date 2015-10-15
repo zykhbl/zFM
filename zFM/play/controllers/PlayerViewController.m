@@ -126,9 +126,10 @@
     self.playState = STOP;
     self.timerStop = YES;
     self.longPressTaped = NO;
+    
+    self.timer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(timerFire) userInfo:nil repeats:YES];
 }
 
-//============AQPlayerDelegate============
 - (void)modifyStates {
     double last = self.duration - self.currentTime;
     int m = last / 60.0;
@@ -154,8 +155,7 @@
 
 - (void)playNext {
     dispatch_async(dispatch_get_main_queue(), ^{
-        self.currentTime = -1.1;
-        self.duration = 0.0;
+        self.currentTime = self.duration = 0.0;
         self.playOtherSong = YES;
         self.songIndex = (self.songIndex + 1) % [self.songs count];
         self.playState = STOP;
@@ -179,11 +179,7 @@
                 return;
             }
             
-            if (self.timer == nil) {
-                self.timer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(timerFire) userInfo:nil repeats:YES];
-            } else {
-                self.currentTime += 1.0;
-            }
+            self.currentTime += 1.0;
             
             if (self.currentTime < self.duration) {
                 [self performSelectorOnMainThread:@selector(modifyStates) withObject:nil waitUntilDone:NO];
@@ -192,6 +188,7 @@
     }
 }
 
+//============AQPlayerDelegate============
 - (void)AQPlayer:(AQPlayer*)player duration:(NSTimeInterval)d zeroCurrentTime:(BOOL)flag {
     self.duration = d;
     if (flag) {
@@ -200,7 +197,6 @@
     
     self.playState = PLAYING;
     self.timerStop = NO;
-    [self performSelectorOnMainThread:@selector(timerFire) withObject:nil waitUntilDone:NO];
 }
 
 - (void)AQPlayer:(AQPlayer*)player timerStop:(BOOL)flag {

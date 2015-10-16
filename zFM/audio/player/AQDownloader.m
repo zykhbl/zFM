@@ -62,8 +62,6 @@
 }
 
 - (void)dealloc {
-    NSLog(@"++++++++++ AQDownloader dealloc! ++++++++++ \n");
-    
     [self closeFile];
 }
 
@@ -125,7 +123,6 @@
     
     BOOL sucess  = [[NSFileManager defaultManager] createFileAtPath:self.downloadFilePath contents:nil attributes:nil];
     if (!sucess) {
-        NSLog(@"============ createFileAtPath error! \n");
         [self playNext];
     }
     self.file = [NSFileHandle fileHandleForWritingAtPath:self.downloadFilePath];

@@ -162,7 +162,6 @@
         self.timerStop = YES;
         self.longPressTaped = NO;
         [self.player clear];
-        NSLog(@"=========== songIndex: %d \n", self.songIndex);
         
         [self modifyStates];
         [self chagePlayBtnState];

@@ -23,7 +23,7 @@ typedef struct {
     SoundBuffer soundBuffer[MAXBUFS];
 } SourceAudioBufferData, *SourceAudioBufferDataPtr;
 
-static void SilenceData(AudioBufferList *inData) {
+static void silenceData(AudioBufferList *inData) {
 	for (UInt32 i = 0; i < inData->mNumberBuffers; ++i)
 		memset(inData->mBuffers[i].mData, 0, inData->mBuffers[i].mDataByteSize);
 }
@@ -34,7 +34,7 @@ static OSStatus renderInput(void *inRefCon, AudioUnitRenderActionFlags *ioAction
     AudioSampleType *out = (AudioSampleType *)ioData->mBuffers[0].mData;
     
     if (![userData->soundBuffer[inBusNumber].data isEmpty]) {
-        SilenceData(ioData);
+        silenceData(ioData);
         
         int size = [userData->soundBuffer[inBusNumber].data size];
         if (size > 0) {
@@ -47,7 +47,7 @@ static OSStatus renderInput(void *inRefCon, AudioUnitRenderActionFlags *ioAction
         
         return noErr;
     } else {
-        SilenceData(ioData);
+        silenceData(ioData);
         *ioActionFlags |= kAudioUnitRenderAction_OutputIsSilence;
         return noErr;
     }
@@ -110,8 +110,6 @@ static OSStatus renderNotification(void *inRefCon, AudioUnitRenderActionFlags *i
 @synthesize mEQPresetsArray;
 
 - (void)dealloc {
-    NSLog(@"++++++++++ AQGraph dealloc! ++++++++++ \n");
-    
     if (self.mGraph) {
         AUGraphStop(self.mGraph);
         AUGraphRemoveRenderNotify(self.mGraph, renderNotification, self.mUserData);
@@ -151,8 +149,6 @@ static OSStatus renderNotification(void *inRefCon, AudioUnitRenderActionFlags *i
 }
 
 - (void)awakeFromNib {
-    NSLog(@"awakeFromNib \n");
-    
     self.mUserData = (SourceAudioBufferDataPtr)malloc(sizeof(SourceAudioBufferData));
 	memset(self.mUserData->soundBuffer, 0, sizeof(self.mUserData->soundBuffer));
 }
@@ -167,8 +163,6 @@ static OSStatus renderNotification(void *inRefCon, AudioUnitRenderActionFlags *i
 }
 
 - (void)initializeAUGraph {
-    NSLog(@"initializeAUGraph \n");
-	
     OSStatus error = noErr;
     try {
         XThrowIfError(NewAUGraph(&mGraph), "NewAUGraph failed!");
@@ -242,15 +236,11 @@ static OSStatus renderNotification(void *inRefCon, AudioUnitRenderActionFlags *i
 }
 
 - (void)startAUGraph {
-    NSLog(@"PLAY \n");
-    
 	OSStatus result = AUGraphStart(self.mGraph);
     if (result) { NSLog(@"AUGraphStart result %d %08X %4.4s\n", (int)result, (unsigned int)result, (char*)&result); return; }
 }
 
 - (void)stopAUGraph {
-	NSLog(@"STOP \n");
-    
     Boolean isRunning = false;
     OSStatus result = AUGraphIsRunning(self.mGraph, &isRunning);
     if (result) { NSLog(@"AUGraphIsRunning result %d %08X %4.4s\n", (int)result, (unsigned int)result, (char*)&result); return; }
@@ -262,8 +252,6 @@ static OSStatus renderNotification(void *inRefCon, AudioUnitRenderActionFlags *i
 }
 
 - (void)enableInput:(UInt32)inputNum isOn:(AudioUnitParameterValue)isONValue {
-    NSLog(@"BUS %u isON %f\n", (unsigned int)inputNum, isONValue);
-         
     OSStatus result = AudioUnitSetParameter(self.mMixer, kMultiChannelMixerParam_Enable, kAudioUnitScope_Input, inputNum, isONValue, 0);
     if (result) { NSLog(@"AudioUnitSetParameter kMultiChannelMixerParam_Enable result %d %08X %4.4s\n", (int)result, (unsigned int)result, (char*)&result); return; }
 }
@@ -283,7 +271,6 @@ static OSStatus renderNotification(void *inRefCon, AudioUnitRenderActionFlags *i
     OSStatus result = AudioUnitSetProperty(self.iPodEQ, kAudioUnitProperty_PresentPreset, kAudioUnitScope_Global, 0, aPreset, sizeof(AUPreset));
     if (result) { NSLog(@"AudioUnitSetProperty result %d %08X %4.4s\n", (int)result, (unsigned int)result, (char*)&result); return; };
     
-    NSLog(@"SET EQ PRESET %ld ", (long)index);
     CFShow(aPreset->presetName);
 }
 

@@ -21,8 +21,6 @@
 @synthesize cond;
 
 - (void)dealloc {
-    NSLog(@"++++++++++ AQRing dealloc! ++++++++++ \n");
-
     if (self.container != NULL) {
         free(self.container);
         self.container = NULL;

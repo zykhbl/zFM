@@ -166,8 +166,6 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
 }
 
 - (void)dealloc {
-     NSLog(@"++++++++++ AQConverter dealloc! ++++++++++ \n");
-    
     [self clear];
     
     pthread_mutex_destroy(&mutex);
@@ -235,7 +233,6 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
         pthread_mutex_lock(&mutex);
         OSStatus error = AudioFileOpenURL(sourceURL, kAudioFileReadPermission, 0, &sourceFileID);
         while (error && !stopRunloop) {
-            NSLog(@"=========== AudioFileOpenURL \n");
             if (bytesCanRead > contentLength * 0.01) {
                 pthread_mutex_unlock(&mutex);
                 if (self.delegate && [self.delegate respondsToSelector:@selector(AQConverter:playNext:)]) {

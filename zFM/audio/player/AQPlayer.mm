@@ -74,7 +74,7 @@
     }
 }
 
-//===========protocol AQDownloaderDelegate===========
+//===========AQDownloaderDelegate===========
 - (void)AQDownloader:(AQDownloader*)downloader convert:(NSString*)filePath {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         if (self.converter == nil) {

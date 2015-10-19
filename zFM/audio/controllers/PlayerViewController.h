@@ -15,7 +15,6 @@ typedef enum {
 	PLAYING
 } PlayState;
 
-
 @interface PlayerViewController : UIViewController <AQPlayerDelegate>
 
 @property (nonatomic, assign) int songIndex;

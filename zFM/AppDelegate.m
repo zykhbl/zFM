@@ -24,7 +24,7 @@
     
     self.mainVC = [[AudioPlayViewController alloc] init];
     self.mainVC.view.frame = self.window.bounds;
-    [self.window addSubview:self.mainVC.view];
+    self.window.rootViewController = self.mainVC;
     
     return YES;
 }

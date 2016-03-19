@@ -2,11 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <array>
-	<string>http://sdl59.yunpan.cn/share.php?method=Share.download&amp;cqid=b32221e02001a6928a2784826a08ab70&amp;dt=59.adc4775639f00addd12ba4f35e8ea1cd&amp;e=1445394504&amp;fhash=bb6a8b47e354108180c671c843ac37683a5c60ae&amp;fname=12%2B-%2BThe%2BVoyage.mp3&amp;fsize=11939111&amp;nid=14449738566127354&amp;st=d2c5d7fd6c7a5a8cabfeeed7e561f2c8&amp;xqid=2563162364</string>
-	<string>http://sdl59.yunpan.cn/share.php?method=Share.download&amp;cqid=b32221e02001a6928a2784826a08ab70&amp;dt=59.24a2e5f293f22e278ec750fe486d4aac&amp;e=1445394699&amp;fhash=4f1637e355e728ba1a15e626a2166164109abdf0&amp;fname=07%2B-%2BVetelgyus.mp3&amp;fsize=19455062&amp;nid=14449738046169302&amp;st=130daa13f60d52768c06bf61783e1daa&amp;xqid=2563162364</string>
-	<string>http://sdl59.yunpan.cn/share.php?method=Share.download&amp;cqid=b32221e02001a6928a2784826a08ab70&amp;dt=59.baa87aaf33c540502fc48415ed4b85a6&amp;e=1445394727&amp;fhash=9adbcb4ba733da6d26114318efddceba7f5dc613&amp;fname=05%2B-%2BEnemy%2BTo%2BInjustice.mp3&amp;fsize=17625445&amp;nid=14449737216160268&amp;st=80b27abfcc9aba2aff97fe517791317f&amp;xqid=2563162364</string>
-	<string>http://dl.loveq.cn/program/LoveQ.cn_2015-10-11-1.mp3</string>
-	<string>http://dl.loveq.cn/program/LoveQ.cn_2015-09-20-1.mp3</string>
+	<string>http://sc1.111ttt.com/2015/1/02/27/95272139340.mp3</string>
+	<string>https://sdl59.yunpan.360.cn/share.php?method=Share.download&amp;cqid=b32221e02001a6928a2784826a08ab70&amp;dt=59.adc4775639f00addd12ba4f35e8ea1cd&amp;e=1458372035&amp;fhash=bb6a8b47e354108180c671c843ac37683a5c60ae&amp;fname=12%2B-%2BThe%2BVoyage.mp3&amp;fsize=11939111&amp;nid=14449738566127354&amp;st=75f96bf4aede2045d9fff29669a20968&amp;xqid=2563162364</string>
+	<string>https://sdl59.yunpan.360.cn/share.php?method=Share.download&amp;cqid=b32221e02001a6928a2784826a08ab70&amp;dt=59.24a2e5f293f22e278ec750fe486d4aac&amp;e=1458372016&amp;fhash=4f1637e355e728ba1a15e626a2166164109abdf0&amp;fname=07%2B-%2BVetelgyus.mp3&amp;fsize=19455062&amp;nid=14449738046169302&amp;st=a5a5cf2bb1205551e6a4c7c4efeb8921&amp;xqid=2563162364</string>
+	<string>https://sdl59.yunpan.360.cn/share.php?method=Share.download&amp;cqid=b32221e02001a6928a2784826a08ab70&amp;dt=59.baa87aaf33c540502fc48415ed4b85a6&amp;e=1458371995&amp;fhash=9adbcb4ba733da6d26114318efddceba7f5dc613&amp;fname=05%2B-%2BEnemy%2BTo%2BInjustice.mp3&amp;fsize=17625445&amp;nid=14449737216160268&amp;st=8c073f0c9070de48d17e48e759855eea&amp;xqid=2563162364</string>
 	<string>http://mobileapi.5sing.kugou.com/song/transcoding?songid=12626585&amp;songtype=fc&amp;bitrate=128</string>
 	<string>http://mobileapi.5sing.kugou.com/song/transcoding?songid=12946453&amp;songtype=fc&amp;bitrate=128</string>
 	<string>http://mobileapi.5sing.kugou.com/song/transcoding?songid=2444839&amp;songtype=yc&amp;bitrate=128</string>

@@ -231,9 +231,9 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
         }
         
         pthread_mutex_lock(&mutex);
-        OSStatus error = AudioFileOpenURL(sourceURL, kAudioFileReadPermission, 0, &sourceFileID);
+        OSStatus error = AudioFileOpenURL(sourceURL, kAudioFileReadPermission, kAudioFileM4AType, &sourceFileID);
         while (error && !stopRunloop) {
-            if (bytesCanRead > contentLength * 0.01) {
+            if (bytesCanRead > contentLength * 0.1) {
                 pthread_mutex_unlock(&mutex);
                 if (self.delegate && [self.delegate respondsToSelector:@selector(AQConverter:playNext:)]) {
                     [self.delegate AQConverter:self playNext:YES];
@@ -243,7 +243,7 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
             
             timerStop(YES);
             pthread_cond_wait(&cond, &mutex);
-            error = AudioFileOpenURL(sourceURL, kAudioFileReadPermission, 0, &sourceFileID);
+            error = AudioFileOpenURL(sourceURL, kAudioFileReadPermission, kAudioFileM4AType, &sourceFileID);
         }
         pthread_mutex_unlock(&mutex);
         
@@ -322,16 +322,31 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
                 if (kAudioConverterErr_HardwareInUse == error) {
                     NSLog(@"Audio Converter returned kAudioConverterErr_HardwareInUse!\n");
                 } else {
-                    XThrowIfError(error, "AudioConverterFillComplexBuffer error!");
+                    NSLog(@"AudioConverterFillComplexBuffer error!\n");
+                    
+                    off_t old_bytesCanRead = bytesCanRead;
+                    pthread_mutex_lock(&mutex);
+                    while (bytesCanRead < old_bytesCanRead + kDefaultSize) {
+                        if (bytesCanRead < contentLength) {
+                            timerStop(YES);
+                            pthread_cond_wait(&cond, &mutex);
+                        } else {
+                            break;
+                        }
+                    }
+                    pthread_mutex_unlock(&mutex);
                 }
             } else {
                 if (ioOutputDataPackets == 0) {
+                    NSLog(@"ioOutputDataPackets == 0 !\n");
+                    
+                    self.afio->srcFilePos -= 10;
                     self.again = YES;
                     break;
                 }
             }
             
-            if (noErr == error) {
+            if (noErr == error && ioOutputDataPackets > 0 && fillBufList.mBuffers[0].mDataByteSize > 0) {
                 timerStop(NO);
                 
                 [self.graph addBuf:fillBufList.mBuffers[0].mData numberBytes:fillBufList.mBuffers[0].mDataByteSize];

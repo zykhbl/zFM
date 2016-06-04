@@ -235,7 +235,7 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
         pthread_mutex_lock(&mutex);
         OSStatus error = AudioFileOpenURL(sourceURL, kAudioFileReadPermission, kAudioFileM4AType, &sourceFileID);
         while (error && !stopRunloop) {
-            if (bytesCanRead > contentLength * 0.1) {
+            if (bytesCanRead > contentLength * 0.2) {
                 pthread_mutex_unlock(&mutex);
                 if (self.delegate && [self.delegate respondsToSelector:@selector(AQConverter:playNext:)]) {
                     [self.delegate AQConverter:self playNext:YES];
@@ -260,6 +260,9 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
         
         size = sizeof(self.afio->audioDataByteCount);
         XThrowIfError(AudioFileGetProperty(self.sourceFileID, kAudioFilePropertyAudioDataByteCount, &size, &self.afio->audioDataByteCount), "couldn't get kAudioFilePropertyAudioDataByteCount");
+        if (self.afio->audioDataByteCount < contentLength - self.afio->audioDataOffset) {
+            self.afio->audioDataByteCount = contentLength - self.afio->audioDataOffset;
+        }
         
         size = sizeof(self.afio->bitRate);
         XThrowIfError(AudioFileGetProperty(self.sourceFileID, kAudioFilePropertyBitRate, &size, &self.afio->bitRate), "couldn't get kAudioFilePropertyBitRate");

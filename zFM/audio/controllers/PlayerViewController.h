@@ -23,6 +23,8 @@ typedef enum {
 @property (nonatomic, strong) NSTimer *timer;
 
 @property (nonatomic, strong) UIButton *playBtn;
+@property (nonatomic, strong) UIButton *prevBtn;
+@property (nonatomic, strong) UIButton *nextBtn;
 @property (nonatomic, strong) UISlider *timeSlider;
 @property (nonatomic, strong) UILabel *timeLabel;
 @property (nonatomic, strong) UIView *tapView;

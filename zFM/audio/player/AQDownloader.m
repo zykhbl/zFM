@@ -127,7 +127,6 @@
     }
     self.file = [NSFileHandle fileHandleForWritingAtPath:self.downloadFilePath];
     
-    //这三行代码是为了解决.m4a文件播放问题
     [self.file seekToFileOffset:self.contentLength];
     [self.file writeData:[@"1" dataUsingEncoding:NSUTF8StringEncoding]];
     [self.file seekToFileOffset:0];
@@ -137,7 +136,7 @@
     [self.file writeData:data];
 
     self.bytesReceived += data.length;
-    if (self.bytesReceived > self.contentLength * 0.08) {
+    if (self.bytesReceived > self.contentLength * 0.01) {
         if (!self.converted) {
             self.converted = YES;
             [self convert];

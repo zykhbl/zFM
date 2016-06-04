@@ -18,7 +18,7 @@
 + (void)playForeground {
     AVAudioSession *session = [AVAudioSession sharedInstance];
     [session setActive:YES error:nil];
-    [session setCategory:AVAudioSessionCategoryPlayback error:nil];
+    [session setCategory:AVAudioSessionCategoryPlayAndRecord error:nil];
 }
 
 + (id)sharedAQPlayer {

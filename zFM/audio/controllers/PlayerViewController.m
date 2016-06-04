@@ -15,6 +15,8 @@
 @synthesize player;
 @synthesize timer;
 @synthesize playBtn;
+@synthesize prevBtn;
+@synthesize nextBtn;
 @synthesize timeSlider;
 @synthesize timeLabel;
 @synthesize tapView;
@@ -116,11 +118,23 @@
     self.timeLabel.text = @"00:00";
     [self.view addSubview:self.timeLabel];
 
+    self.prevBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    self.prevBtn.frame = CGRectMake((320.0 - 40.0) * 0.5 - 80.0, 50.0, 40.0, 40.0);
+    [self.prevBtn setImage:[UIImage imageNamed:@"prev.png"] forState:UIControlStateNormal];
+    [self.prevBtn addTarget:self action:@selector(playPrev) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:prevBtn];
+    
     self.playBtn = [UIButton buttonWithType:UIButtonTypeCustom];
-    self.playBtn.frame = CGRectMake((320.0 - 50.0) * 0.5, 45.0, 50.0, 50.0);
+    self.playBtn.frame = CGRectMake((320.0 - 40.0) * 0.5, 50.0, 40.0, 40.0);
     [self.playBtn setImage:[UIImage imageNamed:@"play.png"] forState:UIControlStateNormal];
     [self.playBtn addTarget:self action:@selector(play) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:playBtn];
+    
+    self.nextBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    self.nextBtn.frame = CGRectMake((320.0 - 40.0) * 0.5 + 80.0, 50.0, 40.0, 40.0);
+    [self.nextBtn setImage:[UIImage imageNamed:@"next.png"] forState:UIControlStateNormal];
+    [self.nextBtn addTarget:self action:@selector(playNext) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:nextBtn];
     
     self.playOtherSong = YES;
     self.playState = STOP;
@@ -153,11 +167,15 @@
     }
 }
 
-- (void)playNext {
+- (void)playNewOnce:(BOOL)flag {
     dispatch_async(dispatch_get_main_queue(), ^{
         self.currentTime = self.duration = 0.0;
         self.playOtherSong = YES;
-        self.songIndex = (self.songIndex + 1) % [self.songs count];
+        if (flag) {
+            self.songIndex = (self.songIndex + 1) % [self.songs count];
+        } else {
+            self.songIndex = ((self.songIndex - 1) + [self.songs count]) % [self.songs count];
+        }
         self.playState = STOP;
         self.timerStop = YES;
         self.longPressTaped = NO;
@@ -169,9 +187,17 @@
     });
 }
 
+- (void)playPrev {
+    [self playNewOnce:NO];
+}
+
+- (void)playNext {
+    [self playNewOnce:YES];
+}
+
 - (void)timerFire {
     if (self.playState == PLAYING) {
-        if (self.currentTime >= self.duration) {
+        if (self.currentTime > self.duration) {
             [self playNext];
         } else {
             if (self.timerStop) {

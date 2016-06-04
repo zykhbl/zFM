@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B7006A681D038B2F009E9F6E /* next@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = B7006A661D038B2F009E9F6E /* next@2x.png */; };
+		B7006A691D038B2F009E9F6E /* prev@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = B7006A671D038B2F009E9F6E /* prev@2x.png */; };
 		B7064DD51BB44BF700ECD501 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B74449771BB253AC004B9498 /* AVFoundation.framework */; };
 		B70E4D351BB5984F0083F4C9 /* PulleyViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B70E4D341BB5984F0083F4C9 /* PulleyViewController.m */; };
 		B70E4D4F1BB5B7860083F4C9 /* choosed@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = B70E4D4E1BB5B7860083F4C9 /* choosed@2x.png */; };
@@ -58,6 +60,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		B7006A661D038B2F009E9F6E /* next@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "next@2x.png"; sourceTree = "<group>"; };
+		B7006A671D038B2F009E9F6E /* prev@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "prev@2x.png"; sourceTree = "<group>"; };
 		B70E4D331BB5984F0083F4C9 /* PulleyViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PulleyViewController.h; sourceTree = "<group>"; };
 		B70E4D341BB5984F0083F4C9 /* PulleyViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PulleyViewController.m; sourceTree = "<group>"; };
 		B70E4D4E1BB5B7860083F4C9 /* choosed@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "choosed@2x.png"; sourceTree = "<group>"; };
@@ -301,6 +305,8 @@
 				B78062B11BB54A420099C52E /* pause@2x.png */,
 				B78062B21BB54A420099C52E /* play@2x.png */,
 				B70E4D4E1BB5B7860083F4C9 /* choosed@2x.png */,
+				B7006A661D038B2F009E9F6E /* next@2x.png */,
+				B7006A671D038B2F009E9F6E /* prev@2x.png */,
 			);
 			path = play;
 			sourceTree = "<group>";
@@ -475,6 +481,8 @@
 				B73A96411BD0EECC00521252 /* ipodEQ.plist in Resources */,
 				B79BDEC91BB16167001083DA /* InfoPlist.strings in Resources */,
 				B78062B31BB54A420099C52E /* pause@2x.png in Resources */,
+				B7006A691D038B2F009E9F6E /* prev@2x.png in Resources */,
+				B7006A681D038B2F009E9F6E /* next@2x.png in Resources */,
 				B73A964C1BD0EECC00521252 /* songs.plist in Resources */,
 				B73A96401BD0EECC00521252 /* customEQ.plist in Resources */,
 				B70E4D4F1BB5B7860083F4C9 /* choosed@2x.png in Resources */,

@@ -35,6 +35,8 @@ typedef struct {
 	AudioStreamPacketDescription *packetDescriptions;
     
     UInt64                       audioDataOffset;
+    UInt64                       audioDataByteCount;
+    UInt64                       audioDataPacketCount;
     UInt32                       bitRate;
     NSTimeInterval               duration;
 } AudioFileIO, *AudioFileIOPtr;
@@ -256,10 +258,13 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
             bytesOffset = self.afio->audioDataOffset;
         }
         
+        size = sizeof(self.afio->audioDataByteCount);
+        XThrowIfError(AudioFileGetProperty(self.sourceFileID, kAudioFilePropertyAudioDataByteCount, &size, &self.afio->audioDataByteCount), "couldn't get kAudioFilePropertyAudioDataByteCount");
+        
         size = sizeof(self.afio->bitRate);
         XThrowIfError(AudioFileGetProperty(self.sourceFileID, kAudioFilePropertyBitRate, &size, &self.afio->bitRate), "couldn't get kAudioFilePropertyBitRate");
         if (self.delegate && [self.delegate respondsToSelector:@selector(AQConverter:duration:zeroCurrentTime:)]) {
-            self.afio->duration = (contentLength - self.afio->audioDataOffset) * 8 / self.afio->bitRate;
+            self.afio->duration = self.afio->audioDataByteCount * 8 / self.afio->bitRate;
             [self.delegate AQConverter:self duration:self.afio->duration zeroCurrentTime:(pos == 0 ? YES : NO)];
         }
         
@@ -288,6 +293,9 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
         self.afio->srcBuffer = new char [self.afio->srcBufferSize];
         self.afio->srcFilePos = pos;
         self.afio->srcFormat = srcFormat;
+        
+        double packetDuration = self.afio->srcFormat.mFramesPerPacket / self.afio->srcFormat.mSampleRate;
+        self.afio->audioDataPacketCount = self.afio->duration / packetDuration;
 		
         if (srcFormat.mBytesPerPacket == 0) {
             size = sizeof(self.afio->srcSizePerPacket);
@@ -318,35 +326,35 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
 
             UInt32 ioOutputDataPackets = numOutputPackets;
             error = AudioConverterFillComplexBuffer(self.converter, encoderDataProc, self.afio, &ioOutputDataPackets, &fillBufList, self.outputPacketDescriptions);
-            if (error) {
-                if (kAudioConverterErr_HardwareInUse == error) {
-                    NSLog(@"Audio Converter returned kAudioConverterErr_HardwareInUse!\n");
-                } else {
-                    NSLog(@"AudioConverterFillComplexBuffer error!\n");
-                    
-                    off_t old_bytesCanRead = bytesCanRead;
-                    pthread_mutex_lock(&mutex);
-                    while (bytesCanRead < old_bytesCanRead + kDefaultSize) {
-                        if (bytesCanRead < contentLength) {
-                            timerStop(YES);
-                            pthread_cond_wait(&cond, &mutex);
-                        } else {
-                            break;
+            if (error || ioOutputDataPackets == 0) {
+                if (error) {
+                    if (kAudioConverterErr_HardwareInUse == error) {
+                        NSLog(@"Audio Converter returned kAudioConverterErr_HardwareInUse!\n");
+                    } else {
+                        NSLog(@"AudioConverterFillComplexBuffer error!\n");
+                        
+                        off_t old_bytesCanRead = bytesCanRead;
+                        pthread_mutex_lock(&mutex);
+                        while (bytesCanRead < old_bytesCanRead + kDefaultSize) {
+                            if (bytesCanRead < contentLength) {
+                                timerStop(YES);
+                                pthread_cond_wait(&cond, &mutex);
+                            } else {
+                                break;
+                            }
                         }
+                        pthread_mutex_unlock(&mutex);
                     }
-                    pthread_mutex_unlock(&mutex);
                 }
-            } else {
-                if (ioOutputDataPackets == 0) {
-                    NSLog(@"ioOutputDataPackets == 0 !\n");
-                    
-                    self.afio->srcFilePos -= 10;
+                
+                UInt64 maxAudioDataOffset = self.afio->audioDataOffset + self.afio->audioDataByteCount;
+                if (bytesOffset < maxAudioDataOffset && self.afio->srcFilePos < self.afio->audioDataPacketCount) {
                     self.again = YES;
                     break;
                 }
             }
             
-            if (noErr == error && ioOutputDataPackets > 0 && fillBufList.mBuffers[0].mDataByteSize > 0) {
+            if (error == noErr && ioOutputDataPackets > 0 && fillBufList.mBuffers[0].mDataByteSize > 0) {
                 timerStop(NO);
                 
                 [self.graph addBuf:fillBufList.mBuffers[0].mData numberBytes:fillBufList.mBuffers[0].mDataByteSize];
@@ -384,7 +392,7 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
 }
 
 - (void)seek:(NSTimeInterval)seekToTime {
-    bytesOffset = self.afio->audioDataOffset + (contentLength - self.afio->audioDataOffset) * (seekToTime / self.afio->duration);
+    bytesOffset = self.afio->audioDataOffset + self.afio->audioDataByteCount * (seekToTime / self.afio->duration);
     
     double packetDuration = self.afio->srcFormat.mFramesPerPacket / self.afio->srcFormat.mSampleRate;
     self.afio->srcFilePos = (UInt32)(seekToTime / packetDuration);

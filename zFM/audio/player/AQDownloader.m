@@ -126,17 +126,24 @@
         [self playNext];
     }
     self.file = [NSFileHandle fileHandleForWritingAtPath:self.downloadFilePath];
+    
+    //这三行代码是为了解决.m4a文件播放问题
+    [self.file seekToFileOffset:self.contentLength];
+    [self.file writeData:[@"1" dataUsingEncoding:NSUTF8StringEncoding]];
+    [self.file seekToFileOffset:0];
 }
 
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data {
     [self.file writeData:data];
 
     self.bytesReceived += data.length;
-    if (!self.converted) {
-        self.converted = YES;
-        [self convert];
-    } else {
-        [self signal:NO];
+    if (self.bytesReceived > self.contentLength * 0.01) {
+        if (!self.converted) {
+            self.converted = YES;
+            [self convert];
+        } else {
+            [self signal:NO];
+        }
     }
 }
 

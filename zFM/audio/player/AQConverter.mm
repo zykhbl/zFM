@@ -14,7 +14,7 @@
 #import "IpodEQ.h"
 #import "CustomEQ.h"
 
-#define kDefaultSize 1024 * 10
+#define kDefaultSize 1024 * 20
 
 static pthread_mutex_t mutex;
 static pthread_cond_t cond;

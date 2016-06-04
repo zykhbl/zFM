@@ -9,7 +9,7 @@
 #import "AQRing.h"
 #import <AudioUnit/AudioUnit.h>
 
-#define kRingDefaultSize 1024 * 20
+#define kRingDefaultSize 1024 * 40
 
 @implementation AQRing
 

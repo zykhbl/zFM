@@ -36,5 +36,6 @@ typedef enum {
 @property (nonatomic, assign) BOOL timerStop;
 @property (nonatomic, assign) BOOL longPressTaped;
 @property (nonatomic, assign) CGPoint beginTouchPoint;
+@property (nonatomic, assign) BOOL touchEnable;
 
 @end

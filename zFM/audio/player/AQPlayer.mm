@@ -31,12 +31,17 @@
 }
 
 - (void)clear {
-    [self.downloader.conn cancel];
-    [self.downloader cancel];
-    self.downloader = nil;
-    [self.converter setStopRunloop:YES];
-    [self.converter signal];
-    self.converter = nil;
+    if (self.downloader != nil) {
+        [self.downloader.conn cancel];
+        [self.downloader cancel];
+        self.downloader = nil;
+    }
+    
+    if (self.converter != nil) {
+        [self.converter setStopRunloop:YES];
+        [self.converter signal];
+        self.converter = nil;
+    }
 }
 
 - (void)play:(NSString*)url {
@@ -44,7 +49,7 @@
         self.downloader = [[AQDownloader alloc] init];
         self.downloader.delegate = self;
         self.downloader.url = url;
-        [self.downloader start];
+        [self.downloader performSelector:@selector(start) withObject:nil afterDelay:1.0];
     }
 }
 
@@ -76,14 +81,15 @@
 
 //===========AQDownloaderDelegate===========
 - (void)AQDownloader:(AQDownloader*)downloader convert:(NSString*)filePath {
+    __weak typeof(self) weak_self = self;
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        if (self.converter == nil) {
-            self.converter = [[AQConverter alloc] init];
-            self.converter.delegate = self;
-            [self.converter setContentLength:self.downloader.contentLength];
-            [self.converter setBytesCanRead:self.downloader.bytesReceived];
+        if (weak_self.converter == nil) {
+            weak_self.converter = [[AQConverter alloc] init];
+            weak_self.converter.delegate = weak_self;
+            [weak_self.converter setContentLength:weak_self.downloader.contentLength];
+            [weak_self.converter setBytesCanRead:weak_self.downloader.bytesReceived];
         }
-        [self.converter doConvertFile:filePath];
+        [weak_self.converter doConvertFile:filePath];
     });
 }
 

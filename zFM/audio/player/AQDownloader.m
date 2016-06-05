@@ -11,6 +11,7 @@
 
 @interface AQDownloader ()
 
+@property (nonatomic, strong) NSString *fileName;
 @property (nonatomic, strong) NSString *downloadDir;
 @property (nonatomic, strong) NSString *downloadFilePath;
 @property (nonatomic, strong) NSSet *runLoopModes;
@@ -27,6 +28,7 @@
 @synthesize bytesReceived;
 @synthesize contentLength;
 
+@synthesize fileName;
 @synthesize downloadDir;
 @synthesize downloadFilePath;
 @synthesize runLoopModes;
@@ -55,7 +57,7 @@
 }
 
 - (void)closeFile {
-    if (self.file) {
+    if (self.file != nil) {
         [self.file closeFile];
         self.file = nil;
     }
@@ -118,12 +120,13 @@
     self.contentLength = [response expectedContentLength];
     self.bytesReceived = 0;
     
-    NSString *fileName = [response suggestedFilename];
-    self.downloadFilePath = [NSString stringWithFormat:@"%@/%@", self.downloadDir, fileName];
+    self.fileName = [response suggestedFilename];
+    self.downloadFilePath = [NSString stringWithFormat:@"%@/%@", self.downloadDir, self.fileName];
     
     BOOL sucess  = [[NSFileManager defaultManager] createFileAtPath:self.downloadFilePath contents:nil attributes:nil];
     if (!sucess) {
         [self playNext];
+        return;
     }
     self.file = [NSFileHandle fileHandleForWritingAtPath:self.downloadFilePath];
     
@@ -147,18 +150,16 @@
 }
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection {
-    NSLog(@"=============connectionDidFinishLoading============= \n");
+    NSLog(@"+++++++++++++connectionDidFinishLoading: %@+++++++++++++\n", self.fileName);
     
     if (self.converted) {
         [self signal:YES];
         [self closeFile];
-    } else {
-        [self playNext];
     }
 }
 
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error {
-    NSLog(@"=============didFailWithError============= \n");
+    NSLog(@"+++++++++++++didFailWithError: %@+++++++++++++\n", self.fileName);
     
     if (self.converted) {
         if (self.delegate && [self.delegate respondsToSelector:@selector(AQDownloader:fail:)]) {

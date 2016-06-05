@@ -27,6 +27,7 @@
 @synthesize timerStop;
 @synthesize longPressTaped;
 @synthesize beginTouchPoint;
+@synthesize touchEnable;
 
 - (void)chagePlayBtnState {
     if (self.playState == STOP) {
@@ -98,6 +99,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
+    self.touchEnable = YES;
     self.songIndex = 0;
     self.songs = [NSArray arrayWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"songs.plist" ofType:nil]];
     
@@ -168,31 +170,44 @@
 }
 
 - (void)playNewOnce:(BOOL)flag {
+    __weak typeof(self) weak_self = self;
     dispatch_async(dispatch_get_main_queue(), ^{
-        self.currentTime = self.duration = 0.0;
-        self.playOtherSong = YES;
+        weak_self.currentTime = weak_self.duration = 0.0;
+        weak_self.playOtherSong = YES;
         if (flag) {
-            self.songIndex = (self.songIndex + 1) % [self.songs count];
+            weak_self.songIndex = (weak_self.songIndex + 1) % [weak_self.songs count];
         } else {
-            self.songIndex = ((self.songIndex - 1) + [self.songs count]) % [self.songs count];
+            weak_self.songIndex = ((weak_self.songIndex - 1) + [weak_self.songs count]) % [weak_self.songs count];
         }
-        self.playState = STOP;
-        self.timerStop = YES;
-        self.longPressTaped = NO;
-        [self.player clear];
+        weak_self.playState = STOP;
+        weak_self.timerStop = YES;
+        weak_self.longPressTaped = NO;
+        [weak_self.player clear];
         
-        [self modifyStates];
-        [self chagePlayBtnState];
-        [self play];
+        [weak_self modifyStates];
+        [weak_self chagePlayBtnState];
+        [weak_self play];
     });
 }
 
+- (void)enabledTouch {
+    self.touchEnable = YES;
+}
+
 - (void)playPrev {
-    [self playNewOnce:NO];
+    if (self.touchEnable) {
+        self.touchEnable = NO;
+        [self performSelector:@selector(enabledTouch) withObject:nil afterDelay:1.0];
+        [self playNewOnce:NO];
+    }
 }
 
 - (void)playNext {
-    [self playNewOnce:YES];
+    if (self.touchEnable) {
+        self.touchEnable = NO;
+        [self performSelector:@selector(enabledTouch) withObject:nil afterDelay:1.0];
+        [self playNewOnce:YES];
+    }
 }
 
 - (void)timerFire {

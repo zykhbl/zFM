@@ -303,7 +303,11 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
         if (srcFormat.mBytesPerPacket == 0) {
             size = sizeof(self.afio->srcSizePerPacket);
             XThrowIfError(AudioFileGetProperty(self.sourceFileID, kAudioFilePropertyMaximumPacketSize, &size, &self.afio->srcSizePerPacket), "AudioFileGetProperty kAudioFilePropertyMaximumPacketSize failed!");
-            self.afio->packetDescriptions = new AudioStreamPacketDescription[self.afio->srcBufferSize / self.afio->srcSizePerPacket];
+            if (self.afio->srcSizePerPacket > 0) {
+                self.afio->packetDescriptions = new AudioStreamPacketDescription[self.afio->srcBufferSize / self.afio->srcSizePerPacket];
+            } else {
+                self.afio->packetDescriptions = NULL;
+            }
         } else {
             self.afio->srcSizePerPacket = srcFormat.mBytesPerPacket;
             self.afio->packetDescriptions = NULL;

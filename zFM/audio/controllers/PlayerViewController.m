@@ -27,7 +27,6 @@
 @synthesize timerStop;
 @synthesize longPressTaped;
 @synthesize beginTouchPoint;
-@synthesize touchEnable;
 
 - (void)chagePlayBtnState {
     if (self.playState == STOP) {
@@ -99,7 +98,6 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    self.touchEnable = YES;
     self.songIndex = 0;
     self.songs = [NSArray arrayWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"songs.plist" ofType:nil]];
     
@@ -169,7 +167,7 @@
     }
 }
 
-- (void)playNewOnce:(BOOL)flag {
+- (void)preparePlay:(BOOL)flag {
     __weak typeof(self) weak_self = self;
     dispatch_async(dispatch_get_main_queue(), ^{
         weak_self.currentTime = weak_self.duration = 0.0;
@@ -186,28 +184,22 @@
         
         [weak_self modifyStates];
         [weak_self chagePlayBtnState];
-        [weak_self play];
     });
 }
 
-- (void)enabledTouch {
-    self.touchEnable = YES;
+- (void)playNewOnce {
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(play) object:nil];
+    [self performSelector:@selector(play) withObject:nil afterDelay:1.0];
 }
 
 - (void)playPrev {
-    if (self.touchEnable) {
-        self.touchEnable = NO;
-        [self performSelector:@selector(enabledTouch) withObject:nil afterDelay:1.0];
-        [self playNewOnce:NO];
-    }
+    [self preparePlay:NO];
+    [self playNewOnce];
 }
 
 - (void)playNext {
-    if (self.touchEnable) {
-        self.touchEnable = NO;
-        [self performSelector:@selector(enabledTouch) withObject:nil afterDelay:1.0];
-        [self playNewOnce:YES];
-    }
+    [self preparePlay:YES];
+    [self playNewOnce];
 }
 
 - (void)timerFire {

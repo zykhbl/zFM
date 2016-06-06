@@ -16,6 +16,9 @@
 
 #define kDefaultSize 1024 * 20
 
+/*
+ 这些全局私有的static变量是个很危险的东西，以后有机会看能不能把它放进AudioFileIO里
+*/
 static pthread_mutex_t mutex;
 static pthread_cond_t cond;
 
@@ -335,32 +338,30 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
 
             UInt32 ioOutputDataPackets = numOutputPackets;
             error = AudioConverterFillComplexBuffer(self.converter, encoderDataProc, self.afio, &ioOutputDataPackets, &fillBufList, self.outputPacketDescriptions);
-            if (error || ioOutputDataPackets == 0) {
-                if (error) {
-                    if (kAudioConverterErr_HardwareInUse == error) {
-                        NSLog(@"Audio Converter returned kAudioConverterErr_HardwareInUse!\n");
-                    } else {
-                        NSLog(@"AudioConverterFillComplexBuffer error!\n");
-                        
-                        off_t old_bytesCanRead = bytesCanRead;
-                        pthread_mutex_lock(&mutex);
-                        while (bytesCanRead < old_bytesCanRead + kDefaultSize * 10 && !stopRunloop) {
-                            if (bytesCanRead < contentLength) {
-                                timerStop(YES);
-                                pthread_cond_wait(&cond, &mutex);
-                            } else {
-                                break;
-                            }
-                        }
-                        pthread_mutex_unlock(&mutex);
-                    }
+            if (error) {
+                if (kAudioConverterErr_HardwareInUse == error) {
+                    NSLog(@"Audio Converter returned kAudioConverterErr_HardwareInUse!\n");
                 } else {
-                    UInt64 maxAudioDataOffset = self.afio->audioDataOffset + self.afio->audioDataByteCount;
-                    if (bytesOffset < maxAudioDataOffset && self.afio->srcFilePos < self.afio->audioDataPacketCount) {
-                        NSLog(@"ioOutputDataPackets == 0 \n");
-                        self.again = YES;
-                        break;
+                    NSLog(@"AudioConverterFillComplexBuffer error!\n");
+                    
+                    off_t old_bytesCanRead = bytesCanRead;
+                    pthread_mutex_lock(&mutex);
+                    while (bytesCanRead < old_bytesCanRead + kDefaultSize * 5 && !stopRunloop) {
+                        if (bytesCanRead < contentLength) {
+                            timerStop(YES);
+                            pthread_cond_wait(&cond, &mutex);
+                        } else {
+                            break;
+                        }
                     }
+                    pthread_mutex_unlock(&mutex);
+                }
+            } else if (ioOutputDataPackets == 0) {
+                UInt64 maxAudioDataOffset = self.afio->audioDataOffset + self.afio->audioDataByteCount;
+                if (bytesOffset < maxAudioDataOffset && self.afio->srcFilePos < self.afio->audioDataPacketCount) {
+                    NSLog(@"ioOutputDataPackets == 0 \n");
+                    self.again = YES;
+                    break;
                 }
             }
             

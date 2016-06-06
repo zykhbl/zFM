@@ -89,8 +89,12 @@
             [self handleMove:gestureRecognizer];
             
             CGFloat value = self.timeSlider.value;
-            self.currentTime = self.duration * value;
-            [self.player seek:self.currentTime];
+            if (value == 1.0) {
+                [self playNext];
+            } else {
+                self.currentTime = self.duration * value;
+                [self.player seek:self.currentTime];
+            }
         }
     }
 }
@@ -167,7 +171,7 @@
     }
 }
 
-- (void)preparePlay:(BOOL)flag {
+- (void)playNewOnce:(BOOL)flag {
     __weak typeof(self) weak_self = self;
     dispatch_async(dispatch_get_main_queue(), ^{
         weak_self.currentTime = weak_self.duration = 0.0;
@@ -184,22 +188,18 @@
         
         [weak_self modifyStates];
         [weak_self chagePlayBtnState];
+        
+        [NSObject cancelPreviousPerformRequestsWithTarget:weak_self selector:@selector(play) object:nil];
+        [weak_self performSelector:@selector(play) withObject:nil afterDelay:1.0];
     });
 }
 
-- (void)playNewOnce {
-    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(play) object:nil];
-    [self performSelector:@selector(play) withObject:nil afterDelay:1.0];
-}
-
 - (void)playPrev {
-    [self preparePlay:NO];
-    [self playNewOnce];
+    [self playNewOnce:NO];
 }
 
 - (void)playNext {
-    [self preparePlay:YES];
-    [self playNewOnce];
+    [self playNewOnce:YES];
 }
 
 - (void)timerFire {

@@ -32,6 +32,7 @@ typedef struct {
 	UInt32                       srcBufferSize;
 	CAStreamBasicDescription     srcFormat;
 	UInt32                       srcSizePerPacket;
+    double                       packetDuration;
 	AudioStreamPacketDescription *packetDescriptions;
     
     UInt64                       audioDataOffset;
@@ -168,6 +169,7 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
 }
 
 - (void)dealloc {
+    NSLog(@"===================AQConverter dealloc===================\n");
     [self clear];
     
     pthread_mutex_destroy(&mutex);
@@ -297,8 +299,8 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
         self.afio->srcFilePos = pos;
         self.afio->srcFormat = srcFormat;
         
-        double packetDuration = self.afio->srcFormat.mFramesPerPacket / self.afio->srcFormat.mSampleRate;
-        self.afio->audioDataPacketCount = self.afio->duration / packetDuration;
+        self.afio->packetDuration = self.afio->srcFormat.mFramesPerPacket / self.afio->srcFormat.mSampleRate;
+        self.afio->audioDataPacketCount = self.afio->duration / self.afio->packetDuration;
 		
         if (srcFormat.mBytesPerPacket == 0) {
             size = sizeof(self.afio->srcSizePerPacket);
@@ -342,7 +344,7 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
                         
                         off_t old_bytesCanRead = bytesCanRead;
                         pthread_mutex_lock(&mutex);
-                        while (bytesCanRead < old_bytesCanRead + kDefaultSize) {
+                        while (bytesCanRead < old_bytesCanRead + kDefaultSize * 10 && !stopRunloop) {
                             if (bytesCanRead < contentLength) {
                                 timerStop(YES);
                                 pthread_cond_wait(&cond, &mutex);
@@ -352,18 +354,18 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
                         }
                         pthread_mutex_unlock(&mutex);
                     }
-                }
-                
-                UInt64 maxAudioDataOffset = self.afio->audioDataOffset + self.afio->audioDataByteCount;
-                if (bytesOffset < maxAudioDataOffset && self.afio->srcFilePos < self.afio->audioDataPacketCount) {
-                    self.again = YES;
-                    break;
+                } else {
+                    UInt64 maxAudioDataOffset = self.afio->audioDataOffset + self.afio->audioDataByteCount;
+                    if (bytesOffset < maxAudioDataOffset && self.afio->srcFilePos < self.afio->audioDataPacketCount) {
+                        NSLog(@"ioOutputDataPackets == 0 \n");
+                        self.again = YES;
+                        break;
+                    }
                 }
             }
             
             if (error == noErr && ioOutputDataPackets > 0 && fillBufList.mBuffers[0].mDataByteSize > 0) {
                 timerStop(NO);
-                
                 [self.graph addBuf:fillBufList.mBuffers[0].mData numberBytes:fillBufList.mBuffers[0].mDataByteSize];
             }
         }
@@ -401,8 +403,7 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
 - (void)seek:(NSTimeInterval)seekToTime {
     bytesOffset = self.afio->audioDataOffset + self.afio->audioDataByteCount * (seekToTime / self.afio->duration);
     
-    double packetDuration = self.afio->srcFormat.mFramesPerPacket / self.afio->srcFormat.mSampleRate;
-    self.afio->srcFilePos = (UInt32)(seekToTime / packetDuration);
+    self.afio->srcFilePos = (UInt32)(seekToTime / self.afio->packetDuration);
     [self signal];
 }
 

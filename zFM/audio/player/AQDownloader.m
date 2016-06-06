@@ -139,7 +139,7 @@
     [self.file writeData:data];
 
     self.bytesReceived += data.length;
-    if (self.bytesReceived > self.contentLength * 0.01) {
+    if (self.bytesReceived > self.contentLength * 0.05) {
         if (!self.converted) {
             self.converted = YES;
             [self convert];
@@ -155,6 +155,8 @@
     if (self.converted) {
         [self signal:YES];
         [self closeFile];
+    } else {
+        [self playNext];
     }
 }
 

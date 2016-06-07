@@ -251,7 +251,7 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
         
         pthread_mutex_lock(&self.ab->mutex);
         OSStatus error = AudioFileOpenURL(sourceURL, kAudioFileReadPermission, 0, &sourceFileID);
-        while (error && !self.ab->stopRunloop) {
+        while ((error || self.sourceFileID == NULL) && !self.ab->stopRunloop) {
             if (self.ab->bytesCanRead > self.ab->contentLength * 0.2) {
                 pthread_mutex_unlock(&self.ab->mutex);
                 if (self.delegate && [self.delegate respondsToSelector:@selector(AQConverter:playNext:)]) {

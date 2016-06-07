@@ -168,9 +168,9 @@
             [self.delegate AQDownloader:self fail:YES];
         }
         [self closeFile];
-    } else {
-        [self playNext];
     }
+    
+    [self playNext];
 }
 
 @end

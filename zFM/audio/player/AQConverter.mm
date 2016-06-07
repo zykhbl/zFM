@@ -250,7 +250,7 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
         }
         
         pthread_mutex_lock(&self.ab->mutex);
-        OSStatus error = AudioFileOpenURL(sourceURL, kAudioFileReadPermission, kAudioFileM4AType, &sourceFileID);
+        OSStatus error = AudioFileOpenURL(sourceURL, kAudioFileReadPermission, 0, &sourceFileID);
         while (error && !self.ab->stopRunloop) {
             if (self.ab->bytesCanRead > self.ab->contentLength * 0.2) {
                 pthread_mutex_unlock(&self.ab->mutex);
@@ -262,7 +262,7 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
             
             timerStop(self.ab, YES);
             pthread_cond_wait(&self.ab->cond, &self.ab->mutex);
-            error = AudioFileOpenURL(sourceURL, kAudioFileReadPermission, kAudioFileM4AType, &sourceFileID);
+            error = AudioFileOpenURL(sourceURL, kAudioFileReadPermission, 0, &sourceFileID);
         }
         pthread_mutex_unlock(&self.ab->mutex);
         
@@ -350,28 +350,31 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
 
             UInt32 ioOutputDataPackets = numOutputPackets;
             error = AudioConverterFillComplexBuffer(self.converter, encoderDataProc, self.ab, &ioOutputDataPackets, &fillBufList, self.outputPacketDescriptions);
-            if (error) {
-                if (kAudioConverterErr_HardwareInUse == error) {
-                    NSLog(@"Audio Converter returned kAudioConverterErr_HardwareInUse!\n");
-                } else {
-                    NSLog(@"AudioConverterFillComplexBuffer error!\n");
-                    
-                    off_t old_bytesCanRead = self.ab->bytesCanRead;
-                    pthread_mutex_lock(&self.ab->mutex);
-                    while (self.ab->bytesCanRead < old_bytesCanRead + kDefaultSize * 5 && !self.ab->stopRunloop) {
-                        if (self.ab->bytesCanRead < self.ab->contentLength) {
-                            timerStop(self.ab, YES);
-                            pthread_cond_wait(&self.ab->cond, &self.ab->mutex);
-                        } else {
-                            break;
+            if (error || ioOutputDataPackets == 0) {
+                if (error) {
+                    if (kAudioConverterErr_HardwareInUse == error) {
+                        NSLog(@"Audio Converter returned kAudioConverterErr_HardwareInUse!\n");
+                    } else {
+                        NSLog(@"AudioConverterFillComplexBuffer error!\n");
+                        
+                        off_t old_bytesCanRead = self.ab->bytesCanRead;
+                        pthread_mutex_lock(&self.ab->mutex);
+                        while (self.ab->bytesCanRead < old_bytesCanRead + kDefaultSize * 5 && !self.ab->stopRunloop) {
+                            if (self.ab->bytesCanRead < self.ab->contentLength) {
+                                timerStop(self.ab, YES);
+                                pthread_cond_wait(&self.ab->cond, &self.ab->mutex);
+                            } else {
+                                break;
+                            }
                         }
+                        pthread_mutex_unlock(&self.ab->mutex);
                     }
-                    pthread_mutex_unlock(&self.ab->mutex);
+                } else {
+                    NSLog(@"ioOutputDataPackets == 0 \n");
                 }
-            } else if (ioOutputDataPackets == 0) {
+                
                 UInt64 maxAudioDataOffset = self.ab->afio->audioDataOffset + self.ab->afio->audioDataByteCount;
                 if (self.ab->bytesOffset < maxAudioDataOffset && self.ab->afio->srcFilePos < self.ab->afio->audioDataPacketCount) {
-                    NSLog(@"ioOutputDataPackets == 0 \n");
                     self.again = YES;
                     break;
                 }

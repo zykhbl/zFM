@@ -34,16 +34,16 @@ typedef struct {
 } AudioFileIO, *AudioFileIOPtr;
 
 typedef struct {
-    pthread_mutex_t mutex;
-    pthread_cond_t cond;
+    pthread_mutex_t              mutex;
+    pthread_cond_t               cond;
     
-    id<AQConverterDelegate> afioDelegate;
-    off_t contentLength;
-    off_t bytesCanRead;
-    off_t bytesOffset;
-    BOOL stopRunloop;
+    id<AQConverterDelegate>      afioDelegate;
+    off_t                        contentLength;
+    off_t                        bytesCanRead;
+    off_t                        bytesOffset;
+    BOOL                         stopRunloop;
     
-    AudioFileIOPtr afio;
+    AudioFileIOPtr               afio;
 } AudioBase, *AudioBasePtr;
 
 static void timerStop(AudioBasePtr ab, BOOL flag) {
@@ -183,6 +183,10 @@ static void readCookie(AudioFileID sourceFileID, AudioConverterRef converter) {
     if (self.ab != NULL) {
         pthread_mutex_destroy(&self.ab->mutex);
         pthread_cond_destroy(&self.ab->cond);
+        
+        if (self.ab->afio != NULL) {
+            free(self.ab->afio);
+        }
         
         free(self.ab);
     }

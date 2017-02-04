@@ -24,8 +24,9 @@ typedef struct {
 } SourceAudioBufferData, *SourceAudioBufferDataPtr;
 
 static void silenceData(AudioBufferList *inData) {
-	for (UInt32 i = 0; i < inData->mNumberBuffers; ++i)
+	for (UInt32 i = 0; i < inData->mNumberBuffers; ++i) {
 		memset(inData->mBuffers[i].mData, 0, inData->mBuffers[i].mDataByteSize);
+    }
 }
 
 static OSStatus renderInput(void *inRefCon, AudioUnitRenderActionFlags *ioActionFlags, const AudioTimeStamp *inTimeStamp, UInt32 inBusNumber, UInt32 inNumberFrames, AudioBufferList *ioData) {
